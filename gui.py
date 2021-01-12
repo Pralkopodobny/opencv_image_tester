@@ -197,6 +197,11 @@ class MainWindow:
     def open_file(self):
         filename = fd.askopenfilename(title="Select image", filetypes=(("jpeg files", "*.jpg"), ("png files", "*.png")))
         if filename != "":
+            if re.match(r".*?((\.jpg)|(\.png))", filename) is None:
+                print(re.match(r".*?((\.jpg)|(\.png))", filename))
+                messagebox.showerror(title="Error", message="File format is incorrect\nFilename must "
+                                                                            "end with .png or .jpg")
+                return
             answer = messagebox.askyesno(title="Open Image", message="Do you want to open new Image? "
                                                                      "All unsaved work will be lost!")
             if answer is True:
@@ -235,7 +240,7 @@ class MainWindow:
         self.__right_image_window.image=self.__image_manager.get_prev_image(i)
 
     def save_image_as(self):
-        filename = fd.asksaveasfile(title="Save as...", filetypes=(("jpeg files", "*.jpg"), ("png files", "*.png")), defaultextension=".jpg")
+        filename = fd.asksaveasfile(title="Save as...", filetypes=(("jpeg files", "*.jpg"), ("png files", "*.png")))
 
         if filename is not None:
             filename = filename.name

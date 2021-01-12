@@ -6,9 +6,9 @@ from PIL import ImageTk
 class ImageManager:
     def __init__(self):
         #  image in BGR
-        self.__image = cv2.imread("C:/Users/HP/Pictures/azunya.png")
+        self.__image = cv2.imread("./azunya.png")
         # manipulated image by our functions
-        self.__manipulated_image = cv2.imread("C:/Users/HP/Pictures/azunya.png")
+        self.__manipulated_image = cv2.imread("./azunya.png")
         self.__is_grayscale = False
 
         # stack of images

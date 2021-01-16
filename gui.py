@@ -183,6 +183,7 @@ class MainWindow:
         self.__parameters_menu.rowconfigure(1, weight=1)
 
         self.__median_blur_menu = MedianBlur(self.__parameters_menu)
+        self.__median_blur_menu.on_preview = self.median_blur
         #       Create queue menu (notebook)
 
         queue_panel = ttk.Frame(right_panel)
@@ -232,21 +233,22 @@ class MainWindow:
 
     def rotate_by_90(self):
         self.__image_manager.rotate_by_90()
-        self.__right_image_window.image = self.__image_manager.manipulated_image
-        self.__queue.list = self.__image_manager.prev_commands
+        self.refresh_image_and_commands()
 
     def rotate_by_180(self):
         self.__image_manager.rotate_by_180()
-        self.__right_image_window.image = self.__image_manager.manipulated_image
-        self.__queue.list = self.__image_manager.prev_commands
+        self.refresh_image_and_commands()
 
     def rotate_by_270(self):
         self.__image_manager.rotate_by_270()
-        self.__right_image_window.image = self.__image_manager.manipulated_image
-        self.__queue.list = self.__image_manager.prev_commands
+        self.refresh_image_and_commands()
 
     def show_prev_image(self, i):
         self.__right_image_window.image = self.__image_manager.get_prev_image(i)
+
+    def refresh_image_and_commands(self):
+        self.__right_image_window.image = self.__image_manager.manipulated_image
+        self.__queue.list = self.__image_manager.prev_commands
 
     def save_image_as(self):
         filename = fd.asksaveasfile(title="Save as...", filetypes=(("jpeg files", "*.jpg"), ("png files", "*.png")))
@@ -271,6 +273,10 @@ class MainWindow:
             self.__active_menu.grid_forget()
         self.__active_menu = panel
         panel.grid(row=1, column=0, sticky=(N, S, W, E))
+
+    def median_blur(self, ksize):
+        self.__image_manager.median_filter(ksize)
+        self.refresh_image_and_commands()
 
 
 if __name__ == '__main__':

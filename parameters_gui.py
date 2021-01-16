@@ -145,4 +145,4 @@ class MedianBlur(ParametersMenu):
     @on_preview.setter
     def on_preview(self, preview_function):
         self._preview_function = preview_function
-        self._buttons.preview_button.configure(command=lambda: self._preview_function(self.__ksize))
+        self._buttons.preview_button.configure(command=lambda: self._preview_function(int(self.__ksize.get())))

@@ -6,6 +6,7 @@ from PIL import Image
 from PIL import ImageTk
 import cv2
 from image_manager import ImageManager
+from parameters_gui import CannyMenu
 
 
 class ScrollableImage(ttk.Frame):
@@ -16,13 +17,13 @@ class ScrollableImage(ttk.Frame):
         self.__shape = self.cnvs.create_image(0, 0, anchor='nw', image=self.__image)
         self.v_scroll = ttk.Scrollbar(self, orient='vertical')
         self.h_scroll = ttk.Scrollbar(self, orient='horizontal')
-        self.cnvs.grid(row=0, column=0,  sticky='nsew')
+        self.cnvs.grid(row=0, column=0, sticky='nsew')
         self.h_scroll.grid(row=1, column=0, sticky='ew')
         self.v_scroll.grid(row=0, column=1, sticky='ns')
         self.rowconfigure(0, weight=1)
         self.columnconfigure(0, weight=1)
         self.cnvs.config(xscrollcommand=self.h_scroll.set,
-                           yscrollcommand=self.v_scroll.set)
+                         yscrollcommand=self.v_scroll.set)
         self.v_scroll.config(command=self.cnvs.yview)
         self.h_scroll.config(command=self.cnvs.xview)
         self.cnvs.config(scrollregion=self.cnvs.bbox('all'))
@@ -105,7 +106,7 @@ class MainWindow:
         main_window.columnconfigure(1, weight=2)
         main_window.grid(row=0, column=0, sticky=(N, S, W, E))
 
-#       Create scrollable images
+        #       Create scrollable images
 
         self.__left_image_window = ScrollableImage(main_window, image=self.__image_manager.image)
         self.__left_image_window.grid(row=0, column=0, sticky=(N, S, W, E))
@@ -113,7 +114,7 @@ class MainWindow:
         self.__right_image_window = ScrollableImage(main_window, image=self.__image_manager.manipulated_image)
         self.__right_image_window.grid(row=0, column=1, sticky=(N, S, W, E))
 
-#       Create menu bar
+        #       Create menu bar
 
         root.option_add('*tearOff', FALSE)
 
@@ -136,7 +137,7 @@ class MainWindow:
 
         root['menu'] = menu_bar
 
-#       Create status bar with scale
+        #       Create status bar with scale
 
         self.__scale_var = StringVar()
         self.__scale_val = 100
@@ -156,15 +157,15 @@ class MainWindow:
         scale.set(100)
         scale.grid(row=0, column=2)
 
-#       Create right panel (notebook)
+        #       Create right panel (notebook)
 
-        main_window.columnconfigure(2, weight=1)
+        #main_window.columnconfigure(2, weight=1)
         right_panel = ttk.Notebook(main_window)
         right_panel.grid(row=0, column=2, sticky=(N, S, W, E))
         right_panel.columnconfigure(0, weight=1)
         right_panel.rowconfigure(0, weight=1)
 
-#       Create parameters menu (notebook)
+        #       Create parameters menu (notebook)
 
         parameters_menu = ttk.Frame(right_panel)
         right_panel.add(parameters_menu, text='parameters')
@@ -176,7 +177,11 @@ class MainWindow:
         parameters_separator.grid(row=1, column=0, sticky=(W, E))
         parameters_menu.columnconfigure(0, weight=1)
 
-#       Create queue menu (notebook)
+        self.__canny_menu = CannyMenu(parameters_menu)
+        self.__canny_menu.grid(row=2, column=0, sticky=(N, S, W, E))
+        parameters_menu.rowconfigure(2, weight=1)
+
+        #       Create queue menu (notebook)
 
         queue_panel = ttk.Frame(right_panel)
         right_panel.add(queue_panel, text='commands')
@@ -200,7 +205,7 @@ class MainWindow:
             if re.match(r".*?((\.jpg)|(\.png))", filename) is None:
                 print(re.match(r".*?((\.jpg)|(\.png))", filename))
                 messagebox.showerror(title="Error", message="File format is incorrect\nFilename must "
-                                                                            "end with .png or .jpg")
+                                                            "end with .png or .jpg")
                 return
             answer = messagebox.askyesno(title="Open Image", message="Do you want to open new Image? "
                                                                      "All unsaved work will be lost!")
@@ -225,7 +230,7 @@ class MainWindow:
 
     def rotate_by_90(self):
         self.__image_manager.rotate_by_90()
-        self.__right_image_window.image=self.__image_manager.manipulated_image
+        self.__right_image_window.image = self.__image_manager.manipulated_image
         self.__queue.list = self.__image_manager.prev_commands
 
     def rotate_by_180(self):
@@ -239,7 +244,7 @@ class MainWindow:
         self.__queue.list = self.__image_manager.prev_commands
 
     def show_prev_image(self, i):
-        self.__right_image_window.image=self.__image_manager.get_prev_image(i)
+        self.__right_image_window.image = self.__image_manager.get_prev_image(i)
 
     def save_image_as(self):
         filename = fd.asksaveasfile(title="Save as...", filetypes=(("jpeg files", "*.jpg"), ("png files", "*.png")))
@@ -253,8 +258,8 @@ class MainWindow:
                 return
             if self.__scale_val != 100:
                 scale = messagebox.askyesno(title="Scale Image?", message="Do you want to save image with default "
-                                                                           "scale? If not you may expect decrease of"
-                                                                           " quality")
+                                                                          "scale? If not you may expect decrease of"
+                                                                          " quality")
                 self.__image_manager.save_image(filename, scale, self.__queue.get_selection())
             else:
                 self.__image_manager.save_image(filename, False, self.__queue.get_selection())

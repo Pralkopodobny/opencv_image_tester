@@ -170,16 +170,13 @@ class MainWindow:
         parameters_menu = ttk.Frame(right_panel)
         right_panel.add(parameters_menu, text='parameters')
 
-        parameters_label = ttk.Label(parameters_menu, text='Parameters menu', anchor='center')
-        parameters_label.grid(row=0, column=0, sticky=(W, E))
-
         parameters_separator = ttk.Separator(parameters_menu, orient='horizontal')
-        parameters_separator.grid(row=1, column=0, sticky=(W, E))
+        parameters_separator.grid(row=0, column=0, sticky=(W, E))
         parameters_menu.columnconfigure(0, weight=1)
 
         self.__canny_menu = CannyMenu(parameters_menu)
-        self.__canny_menu.grid(row=2, column=0, sticky=(N, S, W, E))
-        parameters_menu.rowconfigure(2, weight=1)
+        self.__canny_menu.grid(row=1, column=0, sticky=(N, S, W, E))
+        parameters_menu.rowconfigure(1, weight=1)
 
         #       Create queue menu (notebook)
 

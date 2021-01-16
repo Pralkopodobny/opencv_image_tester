@@ -132,8 +132,12 @@ class MainWindow:
         menu_bar.add_cascade(menu=edit_menu, label='Edit')
 
         simple_filters_menu = Menu(menu_bar)
-        simple_filters_menu.add_command(label='Canny')
+        simple_filters_menu.add_command(label='Canny', command=lambda: self.show_parameters_panel(self.__canny_menu))
         menu_bar.add_cascade(menu=simple_filters_menu, label='Simple filters')
+
+        blurs_menu = Menu(menu_bar)
+        blurs_menu.add_command(label='Median blur', command=lambda: self.show_parameters_panel(self.__median_blur_menu))
+        menu_bar.add_cascade(menu=blurs_menu, label='Blurs')
 
         root['menu'] = menu_bar
 
@@ -166,21 +170,19 @@ class MainWindow:
         right_panel.rowconfigure(0, weight=1)
 
         #       Create parameters menu (notebook)
+        self.__active_menu = None
 
-        parameters_menu = ttk.Frame(right_panel)
-        right_panel.add(parameters_menu, text='parameters')
+        self.__parameters_menu = ttk.Frame(right_panel)
+        right_panel.add(self.__parameters_menu, text='parameters')
 
-        parameters_separator = ttk.Separator(parameters_menu, orient='horizontal')
+        parameters_separator = ttk.Separator(self.__parameters_menu, orient='horizontal')
         parameters_separator.grid(row=0, column=0, sticky=(W, E))
-        parameters_menu.columnconfigure(0, weight=1)
+        self.__parameters_menu.columnconfigure(0, weight=1)
 
-        self.__canny_menu = CannyMenu(parameters_menu)
-        self.__canny_menu.grid(row=1, column=0, sticky=(N, S, W, E))
-        parameters_menu.rowconfigure(1, weight=1)
+        self.__canny_menu = CannyMenu(self.__parameters_menu)
+        self.__parameters_menu.rowconfigure(1, weight=1)
 
-        self.__median_blur_menu = MedianBlur(parameters_menu)
-        self.__median_blur_menu.grid(row=1, column=0, sticky=(N, S, W, E))
-
+        self.__median_blur_menu = MedianBlur(self.__parameters_menu)
         #       Create queue menu (notebook)
 
         queue_panel = ttk.Frame(right_panel)
@@ -263,6 +265,12 @@ class MainWindow:
                 self.__image_manager.save_image(filename, scale, self.__queue.get_selection())
             else:
                 self.__image_manager.save_image(filename, False, self.__queue.get_selection())
+
+    def show_parameters_panel(self, panel):
+        if self.__active_menu is not None:
+            self.__active_menu.grid_forget()
+        self.__active_menu = panel
+        panel.grid(row=1, column=0, sticky=(N, S, W, E))
 
 
 if __name__ == '__main__':

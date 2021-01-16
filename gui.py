@@ -159,7 +159,7 @@ class MainWindow:
 
         #       Create right panel (notebook)
 
-        #main_window.columnconfigure(2, weight=1)
+        main_window.columnconfigure(2, minsize=220)
         right_panel = ttk.Notebook(main_window)
         right_panel.grid(row=0, column=2, sticky=(N, S, W, E))
         right_panel.columnconfigure(0, weight=1)

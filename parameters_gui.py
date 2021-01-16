@@ -11,15 +11,17 @@ class LabeledScale(ttk.Frame):
         super().__init__(master, **kw)
         self.__text = StringVar()
         self.__variable = variable
+        self.columnconfigure(1, weight=1)
+        self.columnconfigure(2, minsize=30)
 
-        label = ttk.Label(self, text=text)
-        label.grid(row=0, column=0)
+        label = ttk.Label(self, text=text, anchor='w')
+        label.grid(row=0, column=0, sticky=W)
 
         self.__slider = ttk.Scale(self, variable=variable, from_=from_, to=to, command=self.__update_label)
-        self.__slider.grid(row=0, column=1)
+        self.__slider.grid(row=0, column=1, sticky=E)
 
         value_label = ttk.Label(self, textvariable=self.__text, anchor='e')
-        value_label.grid(row=0, column=2, sticky=(E, W))
+        value_label.grid(row=0, column=2, sticky=E)
 
         if variable is not None:
             self.__text.set(variable.get())
@@ -43,6 +45,17 @@ class LabeledCheckButton(ttk.Frame):
         checkbox.grid(row=0, column=1)
 
 
+class PreviewAcceptButtons(ttk.Frame):
+    def __init__(self, master=None, **kw):
+        super().__init__(master, **kw)
+        self.columnconfigure(0, weight=1)
+        self.columnconfigure(1, weight=1)
+        self.preview_button = ttk.Button(self, text='Preview')
+        self.preview_button.grid(row=0, column=0, sticky=(W, E))
+        self.accept_button = ttk.Button(self, text='Accept')
+        self.accept_button.grid(row=0, column=1, sticky=(W, E))
+
+
 class CannyMenu(ttk.Frame):
     def __init__(self, master=None, **kw):
         super().__init__(master, **kw)
@@ -50,32 +63,34 @@ class CannyMenu(ttk.Frame):
         self.__thresh2 = IntVar()
         self.__aperture_size = IntVar()
         self.__l2_gradient = BooleanVar()
-        self.__callback = print
+        self.__preview_function = print
 
-        self.columnconfigure(2, weight=1)
+        self.columnconfigure(0, weight=1)
 
         thresh1_ls = LabeledScale(self, "Threshold 1:", 0, 255, self.__thresh1)
-        thresh1_ls.grid(row=0, column=0, sticky=W)
+        thresh1_ls.grid(row=0, column=0, sticky=(W, E), pady=10)
 
         thresh2_ls = LabeledScale(self, "Threshold 2:", 0, 255, self.__thresh2)
-        thresh2_ls.grid(row=1, column=0, sticky=W)
+        thresh2_ls.grid(row=1, column=0, sticky=(W, E), pady=10)
 
         aperture_size_ls = LabeledScale(self, "Aperture Size:", 1, 10, self.__aperture_size)
-        aperture_size_ls.grid(row=2, column=0, sticky=W)
+        aperture_size_ls.grid(row=2, column=0, sticky=(W, E), pady=10)
 
         l2_gradient_lch = LabeledCheckButton(self, 'L2gradient:', self.__l2_gradient)
-        l2_gradient_lch.grid(row=3, column=0, sticky=W)
+        l2_gradient_lch.grid(row=3, column=0, sticky=(W, E), pady=10)
 
-        self.__button = ttk.Button(self, text='preview')
-        self.__button.grid(row=4, column=0)
-        self.callback = print
+        self.__buttons = PreviewAcceptButtons(self)
+        self.__buttons.grid(row=4, column=0, sticky=(W, E), pady=10)
+        self.on_preview = print
 
     @property
-    def callback(self):
-        return self.__callback
+    def on_preview(self):
+        return self.__preview_function
 
-    @callback.setter
-    def callback(self, callback_function):
-        self.__callback = callback_function
-        self.__button.configure(command=lambda: self.__callback(self.__thresh1.get(), self.__thresh2.get(),
-                                                                self.__aperture_size.get(), self.__l2_gradient.get()))
+    @on_preview.setter
+    def on_preview(self, preview_function):
+        self.__preview_function = preview_function
+        self.__buttons.preview_button.configure(command=lambda: self.__preview_function(self.__thresh1.get(),
+                                                                                        self.__thresh2.get(),
+                                                                                        self.__aperture_size.get(),
+                                                                                        self.__l2_gradient.get()))

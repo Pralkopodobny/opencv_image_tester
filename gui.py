@@ -6,7 +6,7 @@ from PIL import Image
 from PIL import ImageTk
 import cv2
 from image_manager import ImageManager
-from parameters_gui import CannyMenu
+from parameters_gui import CannyMenu, MedianBlur
 
 
 class ScrollableImage(ttk.Frame):
@@ -177,6 +177,9 @@ class MainWindow:
         self.__canny_menu = CannyMenu(parameters_menu)
         self.__canny_menu.grid(row=1, column=0, sticky=(N, S, W, E))
         parameters_menu.rowconfigure(1, weight=1)
+
+        self.__median_blur_menu = MedianBlur(parameters_menu)
+        self.__median_blur_menu.grid(row=1, column=0, sticky=(N, S, W, E))
 
         #       Create queue menu (notebook)
 

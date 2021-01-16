@@ -56,47 +56,93 @@ class PreviewAcceptButtons(ttk.Frame):
         self.accept_button.grid(row=0, column=1, sticky=(W, E))
 
 
-class CannyMenu(ttk.Frame):
-    def __init__(self, master=None, **kw):
+class LabeledSpinBox(ttk.Frame):
+    def __init__(self, master=None, text='', textvariable=None, values=range(100), **kw):
         super().__init__(master, **kw)
-        self.__thresh1 = IntVar()
-        self.__thresh2 = IntVar()
-        self.__aperture_size = IntVar()
-        self.__l2_gradient = BooleanVar()
-        self.__preview_function = print
+        self.__values = values
 
+        label = ttk.Label(self, text=text)
+        label.grid(row=0, column=0)
+
+        spinbox = ttk.Spinbox(self, textvariable=textvariable, values=values, validate='key')
+        data_validation = self.register(self.__validate)
+        if values is not None:
+            spinbox.set(values[0])
+        spinbox.config(validate='key', validatecommand=(data_validation, '%P'))
+        spinbox.grid(row=0, column=1)
+
+    def __validate(self, user_input):
+        if user_input.isdigit():
+            return int(user_input) % 2 == 1 and int(user_input) >= 1
+        return False
+
+
+class ParametersMenu(ttk.Frame):
+    def __init__(self, master=None, name='', **kw):
+        super().__init__(master, **kw)
+        self._preview_function = print
         self.columnconfigure(0, weight=1)
 
-        name_label = ttk.Label(self, text='Canny Edge Detection', anchor='center')
+        name_label = ttk.Label(self, text=name, anchor='center')
         name_label.grid(row=0, column=0, sticky=(W, E))
         separator = ttk.Separator(self, orient='horizontal')
         separator.grid(row=1, column=0, sticky=(W, E))
 
-        thresh1_ls = LabeledScale(self, "Threshold 1:", 0, 255, self.__thresh1)
+        self._main_frame = ttk.Frame(self)
+        self._main_frame.grid(row=2, column=0, sticky=(W, E))
+
+        self._buttons = PreviewAcceptButtons(self)
+        self._buttons.grid(row=3, column=0, sticky=(W, E), pady=10)
+
+
+class CannyMenu(ParametersMenu):
+    def __init__(self, master=None, **kw):
+        super().__init__(master, 'Canny Edge Detection', **kw)
+        self.__thresh1 = IntVar()
+        self.__thresh2 = IntVar()
+        self.__aperture_size = IntVar()
+        self.__l2_gradient = BooleanVar()
+
+        thresh1_ls = LabeledScale(self._main_frame, "Threshold 1:", 0, 255, self.__thresh1)
         thresh1_ls.grid(row=2, column=0, sticky=(W, E), pady=10)
 
-        thresh2_ls = LabeledScale(self, "Threshold 2:", 0, 255, self.__thresh2)
+        thresh2_ls = LabeledScale(self._main_frame, "Threshold 2:", 0, 255, self.__thresh2)
         thresh2_ls.grid(row=3, column=0, sticky=(W, E), pady=10)
 
-        aperture_size_ls = LabeledScale(self, "Aperture Size:", 1, 10, self.__aperture_size)
+        aperture_size_ls = LabeledScale(self._main_frame, "Aperture Size:", 1, 10, self.__aperture_size)
         aperture_size_ls.grid(row=4, column=0, sticky=(W, E), pady=10)
 
-        l2_gradient_lch = LabeledCheckButton(self, 'L2gradient:', self.__l2_gradient)
+        l2_gradient_lch = LabeledCheckButton(self._main_frame, 'L2gradient:', self.__l2_gradient)
         l2_gradient_lch.grid(row=5, column=0, sticky=(W, E), pady=10)
-
-        self.__buttons = PreviewAcceptButtons(self)
-        self.__buttons.grid(row=6, column=0, sticky=(W, E), pady=10)
         self.on_preview = print
 
     @property
     def on_preview(self):
-        return self.__preview_function
+        return self._preview_function
 
     @on_preview.setter
     def on_preview(self, preview_function):
-        self.__preview_function = preview_function
-        self.__buttons.preview_button.configure(command=lambda: self.__preview_function(self.__thresh1.get(),
-                                                                                        self.__thresh2.get(),
-                                                                                        self.__aperture_size.get(),
-                                                                                        self.__l2_gradient.get()))
+        self._preview_function = preview_function
+        self._buttons.preview_button.configure(command=lambda: self._preview_function(self.__thresh1.get(),
+                                                                                      self.__thresh2.get(),
+                                                                                      self.__aperture_size.get(),
+                                                                                      self.__l2_gradient.get()))
 
+
+class MedianBlur(ParametersMenu):
+    def __init__(self, master=None, **kw):
+        super().__init__(master, 'Median Blur', **kw)
+        self.__ksize = StringVar()
+
+        ksize_ls = LabeledSpinBox(self._main_frame, 'ksize:', self.__ksize, [3, 5, 7, 9, 11])
+        ksize_ls.grid(row=0, column=0, sticky=(W, E), pady=10)
+        self.on_preview = print
+
+    @property
+    def on_preview(self):
+        return self._preview_function
+
+    @on_preview.setter
+    def on_preview(self, preview_function):
+        self._preview_function = preview_function
+        self._buttons.preview_button.configure(command=lambda: self._preview_function(self.__ksize))

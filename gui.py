@@ -155,18 +155,18 @@ class MainWindow:
         scale.set(100)
         scale.grid(row=0, column=2)
 
-#       Create right panel
+#       Create right panel (notebook)
 
         main_window.columnconfigure(2, weight=1)
-        right_panel = ttk.Frame(main_window)
+        right_panel = ttk.Notebook(main_window)
         right_panel.grid(row=0, column=2, sticky=(N, S, W, E))
         right_panel.columnconfigure(0, weight=1)
+        right_panel.rowconfigure(0, weight=1)
 
-#       Create parameters menu
+#       Create parameters menu (notebook)
 
         parameters_menu = ttk.Frame(right_panel)
-        right_panel.rowconfigure(0, weight=1)
-        parameters_menu.grid(row=0, column=0, sticky=(N, S, W, E))
+        right_panel.add(parameters_menu, text='parameters')
 
         parameters_label = ttk.Label(parameters_menu, text='Parameters menu', anchor='center')
         parameters_label.grid(row=0, column=0, sticky=(W, E))
@@ -175,12 +175,10 @@ class MainWindow:
         parameters_separator.grid(row=1, column=0, sticky=(W, E))
         parameters_menu.columnconfigure(0, weight=1)
 
-#       Queue panel menu
+#       Create queue menu (notebook)
 
         queue_panel = ttk.Frame(right_panel)
-        right_panel.rowconfigure(1, weight=1)
-        queue_panel.rowconfigure(2, weight=1)
-        queue_panel.grid(row=1, column=0, sticky=(N, S, W, E))
+        right_panel.add(queue_panel, text='commands')
 
         queue_label = ttk.Label(queue_panel, text='Queue menu', anchor='center')
         queue_label.grid(row=0, column=0, sticky=(W, E))
@@ -188,6 +186,7 @@ class MainWindow:
         queue_separator = ttk.Separator(queue_panel, orient='horizontal')
         queue_separator.grid(row=1, column=0, sticky=(W, E))
         queue_panel.columnconfigure(0, weight=1)
+        queue_panel.rowconfigure(2, weight=1)
 
         self.__queue = ScrollableList(queue_panel)
         self.__queue.callback_function = self.show_prev_image

@@ -87,6 +87,7 @@ class ScrollableList(ttk.Frame):
     def clear_selection(self):
         self.__list_box.selection_clear(0, END)
 
+    # returns () if nothing selected
     def get_selection(self):
         return self.__list_box.curselection()
 
@@ -217,8 +218,10 @@ class MainWindow:
             self.__scale_var.set(str(self.__scale_val) + "%")
             self.__image_manager.scale = scale_temp_int
             self.__left_image_window.image = self.__image_manager.image
-            self.__right_image_window.image = self.__image_manager.manipulated_image
-            self.__queue.clear_selection()
+            if self.__queue.get_selection() == ():
+                self.__right_image_window.image = self.__image_manager.manipulated_image
+            else:
+                self.__right_image_window.image = self.__image_manager.get_prev_image(self.__queue.get_selection()[0])
 
     def rotate_by_90(self):
         self.__image_manager.rotate_by_90()

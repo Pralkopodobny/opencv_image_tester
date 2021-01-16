@@ -67,20 +67,25 @@ class CannyMenu(ttk.Frame):
 
         self.columnconfigure(0, weight=1)
 
+        name_label = ttk.Label(self, text='Canny Edge Detection', anchor='center')
+        name_label.grid(row=0, column=0, sticky=(W, E))
+        separator = ttk.Separator(self, orient='horizontal')
+        separator.grid(row=1, column=0, sticky=(W, E))
+
         thresh1_ls = LabeledScale(self, "Threshold 1:", 0, 255, self.__thresh1)
-        thresh1_ls.grid(row=0, column=0, sticky=(W, E), pady=10)
+        thresh1_ls.grid(row=2, column=0, sticky=(W, E), pady=10)
 
         thresh2_ls = LabeledScale(self, "Threshold 2:", 0, 255, self.__thresh2)
-        thresh2_ls.grid(row=1, column=0, sticky=(W, E), pady=10)
+        thresh2_ls.grid(row=3, column=0, sticky=(W, E), pady=10)
 
         aperture_size_ls = LabeledScale(self, "Aperture Size:", 1, 10, self.__aperture_size)
-        aperture_size_ls.grid(row=2, column=0, sticky=(W, E), pady=10)
+        aperture_size_ls.grid(row=4, column=0, sticky=(W, E), pady=10)
 
         l2_gradient_lch = LabeledCheckButton(self, 'L2gradient:', self.__l2_gradient)
-        l2_gradient_lch.grid(row=3, column=0, sticky=(W, E), pady=10)
+        l2_gradient_lch.grid(row=5, column=0, sticky=(W, E), pady=10)
 
         self.__buttons = PreviewAcceptButtons(self)
-        self.__buttons.grid(row=4, column=0, sticky=(W, E), pady=10)
+        self.__buttons.grid(row=6, column=0, sticky=(W, E), pady=10)
         self.on_preview = print
 
     @property
@@ -94,3 +99,4 @@ class CannyMenu(ttk.Frame):
                                                                                         self.__thresh2.get(),
                                                                                         self.__aperture_size.get(),
                                                                                         self.__l2_gradient.get()))
+

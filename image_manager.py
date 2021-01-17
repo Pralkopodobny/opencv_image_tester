@@ -67,20 +67,23 @@ class ImageManager:
         self.__prev_commands = ["Initial state"]
         self.__is_grayscale = False
 
-    def rotate_by_90(self):
-        self.__prev_commands.append("Rotate by 90 degrees")
+    def rotate_by_90(self, accept=False):
         self.__manipulated_image = cv2.rotate(self.__prev_images[-1][0], cv2.ROTATE_90_CLOCKWISE)
-        self.__prev_images.append((self.__manipulated_image, self.__is_grayscale))
+        if accept:
+            self.__prev_commands.append("Rotate by 90 degrees")
+            self.__prev_images.append((self.__manipulated_image, self.__is_grayscale))
 
-    def rotate_by_180(self):
-        self.__prev_commands.append("Rotate by 180 degrees")
+    def rotate_by_180(self, accept=False):
         self.__manipulated_image = cv2.rotate(self.__prev_images[-1][0], cv2.ROTATE_180)
-        self.__prev_images.append((self.__manipulated_image, self.__is_grayscale))
+        if accept:
+            self.__prev_commands.append("Rotate by 180 degrees")
+            self.__prev_images.append((self.__manipulated_image, self.__is_grayscale))
 
-    def rotate_by_270(self):
-        self.__prev_commands.append("Rotate by -90 degrees")
+    def rotate_by_270(self, accept=False):
         self.__manipulated_image = cv2.rotate(self.__prev_images[-1][0], cv2.ROTATE_90_COUNTERCLOCKWISE)
-        self.__prev_images.append((self.__manipulated_image, self.__is_grayscale))
+        if accept:
+            self.__prev_commands.append("Rotate by -90 degrees")
+            self.__prev_images.append((self.__manipulated_image, self.__is_grayscale))
 
     def save_image(self, path: str, scale: bool, number=None):
         if number == ():
@@ -100,8 +103,9 @@ class ImageManager:
                 cv2.imwrite(path, self.__prev_images[number][0])
                 print("nn s")
 
-    def median_filter(self, ksize):
+    def median_filter(self, ksize, accept=False):
         assert len(self.__prev_images) > 0
-        self.__prev_commands.append(f"Median blur ksize={ksize}")
         self.__manipulated_image = cv2.medianBlur(self.__prev_images[-1][0], ksize=ksize)
-        self.__prev_images.append((self.__manipulated_image, self.__is_grayscale))
+        if accept:
+            self.__prev_commands.append(f"Median blur ksize={ksize}")
+            self.__prev_images.append((self.__manipulated_image, self.__is_grayscale))

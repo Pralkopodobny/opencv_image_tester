@@ -80,7 +80,8 @@ class LabeledSpinBox(ttk.Frame):
 class ParametersMenu(ttk.Frame):
     def __init__(self, master=None, name='', **kw):
         super().__init__(master, **kw)
-        self._preview_function = print
+        self._callback_function = print
+        self._accept_function = print
         self.columnconfigure(0, weight=1)
 
         name_label = ttk.Label(self, text=name, anchor='center')
@@ -117,16 +118,21 @@ class CannyMenu(ParametersMenu):
         self.on_preview = print
 
     @property
-    def on_preview(self):
-        return self._preview_function
+    def callback(self):
+        return self._callback_function
 
-    @on_preview.setter
-    def on_preview(self, preview_function):
-        self._preview_function = preview_function
-        self._buttons.preview_button.configure(command=lambda: self._preview_function(self.__thresh1.get(),
+    @callback.setter
+    def callback(self, callback_function):
+        self._callback_function = callback_function
+        self._buttons.preview_button.configure(command=lambda: self._callback_function(self.__thresh1.get(),
+                                                                                       self.__thresh2.get(),
+                                                                                       self.__aperture_size.get(),
+                                                                                       self.__l2_gradient.get()))
+        self._buttons.accept_button.configure(command=lambda: self._callback_function(self.__thresh1.get(),
                                                                                       self.__thresh2.get(),
                                                                                       self.__aperture_size.get(),
-                                                                                      self.__l2_gradient.get()))
+                                                                                      self.__l2_gradient.get(),
+                                                                                      True))
 
 
 class MedianBlur(ParametersMenu):
@@ -139,10 +145,11 @@ class MedianBlur(ParametersMenu):
         self.on_preview = print
 
     @property
-    def on_preview(self):
-        return self._preview_function
+    def callback(self):
+        return self._callback_function
 
-    @on_preview.setter
-    def on_preview(self, preview_function):
-        self._preview_function = preview_function
-        self._buttons.preview_button.configure(command=lambda: self._preview_function(int(self.__ksize.get())))
+    @callback.setter
+    def callback(self, callback_function):
+        self._callback_function = callback_function
+        self._buttons.preview_button.configure(command=lambda: self._callback_function(int(self.__ksize.get())))
+        self._buttons.accept_button.configure(command=lambda: self._callback_function(int(self.__ksize.get()), True))

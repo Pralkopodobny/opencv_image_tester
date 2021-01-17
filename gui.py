@@ -183,7 +183,7 @@ class MainWindow:
         self.__parameters_menu.rowconfigure(1, weight=1)
 
         self.__median_blur_menu = MedianBlur(self.__parameters_menu)
-        self.__median_blur_menu.on_preview = self.median_blur
+        self.__median_blur_menu.callback = self.median_blur
         #       Create queue menu (notebook)
 
         queue_panel = ttk.Frame(right_panel)
@@ -232,15 +232,15 @@ class MainWindow:
                 self.__right_image_window.image = self.__image_manager.get_prev_image(self.__queue.get_selection()[0])
 
     def rotate_by_90(self):
-        self.__image_manager.rotate_by_90()
+        self.__image_manager.rotate_by_90(True)
         self.refresh_image_and_commands()
 
     def rotate_by_180(self):
-        self.__image_manager.rotate_by_180()
+        self.__image_manager.rotate_by_180(True)
         self.refresh_image_and_commands()
 
     def rotate_by_270(self):
-        self.__image_manager.rotate_by_270()
+        self.__image_manager.rotate_by_270(True)
         self.refresh_image_and_commands()
 
     def show_prev_image(self, i):
@@ -274,8 +274,8 @@ class MainWindow:
         self.__active_menu = panel
         panel.grid(row=1, column=0, sticky=(N, S, W, E))
 
-    def median_blur(self, ksize):
-        self.__image_manager.median_filter(ksize)
+    def median_blur(self, ksize, accept=False):
+        self.__image_manager.median_filter(ksize, accept)
         self.refresh_image_and_commands()
 
 

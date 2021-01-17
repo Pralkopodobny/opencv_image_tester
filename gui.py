@@ -129,6 +129,7 @@ class MainWindow:
         edit_menu.add_command(label='Rotate 90° ↷', command=self.rotate_by_90)
         edit_menu.add_command(label='Rotate 180° ↷', command=self.rotate_by_180)
         edit_menu.add_command(label='Rotate -90° ↶', command=self.rotate_by_270)
+        edit_menu.add_command(label="Grayscale", command=self.grayscale)
         menu_bar.add_cascade(menu=edit_menu, label='Edit')
 
         simple_filters_menu = Menu(menu_bar)
@@ -277,6 +278,13 @@ class MainWindow:
     def median_blur(self, ksize, accept=False):
         self.__image_manager.median_filter(ksize, accept)
         self.refresh_image_and_commands()
+
+    def grayscale(self):
+        success, error_message =  self.__image_manager.to_grayscale(True)
+        if not success:
+            self.__status_bar.configure(text=f"status: {error_message}")
+        else:
+            self.refresh_image_and_commands()
 
 
 if __name__ == '__main__':

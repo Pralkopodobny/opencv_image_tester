@@ -109,3 +109,15 @@ class ImageManager:
         if accept:
             self.__prev_commands.append(f"Median blur ksize={ksize}")
             self.__prev_images.append((self.__manipulated_image, self.__is_grayscale))
+
+    def to_grayscale(self, accept=False):
+        if self.__is_grayscale:
+            print(self.__is_grayscale)
+            return False, "An Image is already in grayscale"
+        else:
+            self.__manipulated_image = cv2.cvtColor(self.__prev_images[-1][0], cv2.COLOR_BGR2GRAY)
+            if accept:
+                self.__prev_commands.append("Convert to grayscale")
+                self.__is_grayscale = True
+                self.__prev_images.append((self.__manipulated_image, self.__is_grayscale))
+            return True, ''

@@ -290,8 +290,8 @@ class MainWindow:
                                                                      f"with .png or .jpg")
                 return
             if self.__scale_val != 100:
-                scale = messagebox.askyesno(title="Scale Image?", message="Do you want to save image with default "
-                                                                          "scale? If not you may expect decrease of"
+                scale = messagebox.askyesno(title="Scale Image?", message="Do you want to save image with CUSTOM "
+                                                                          "scale? If so you may expect decrease of"
                                                                           " quality")
                 self.__image_manager.save_image(filename, scale, self.__queue.get_selection())
             else:

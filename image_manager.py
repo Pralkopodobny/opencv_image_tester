@@ -85,23 +85,20 @@ class ImageManager:
             self.__prev_commands.append("Rotate by -90 degrees")
             self.__prev_images.append((self.__manipulated_image, self.__is_grayscale))
 
-    def save_image(self, path: str, scale: bool, number=None):
+    def save_image(self, path: str, scale: bool, number=()):
         if number == ():
             if scale:
-                print("nn s")
                 cv2.imwrite(path, self.__scale_image(self.__manipulated_image))
             else:
-                print("nn ns")
 
                 cv2.imwrite(path, self.__manipulated_image)
 
         else:
+            image, gray = self.__prev_images[number[0]]
             if scale:
-                cv2.imwrite(path, self.__prev_images[number][0])
-                print("n s")
+                cv2.imwrite(path, self.__scale_image(image))
             else:
-                cv2.imwrite(path, self.__prev_images[number][0])
-                print("nn s")
+                cv2.imwrite(path, image)
 
     def median_blur(self, ksize, accept=False):
         self.__manipulated_image = cv2.medianBlur(self.__prev_images[-1][0], ksize=ksize)

@@ -6,7 +6,7 @@ from PIL import Image
 from PIL import ImageTk
 import cv2
 from image_manager import ImageManager
-from parameters_gui import CannyMenu, MedianBlur
+from parameters_gui import CannyMenu, MedianBlur, GaussianBlur
 
 
 class ScrollableImage(ttk.Frame):
@@ -138,6 +138,7 @@ class MainWindow:
 
         blurs_menu = Menu(menu_bar)
         blurs_menu.add_command(label='Median blur', command=lambda: self.show_parameters_panel(self.__median_blur_menu))
+        blurs_menu.add_command(label="Gaussian Blur", command=lambda: self.show_parameters_panel(self.__gaussian_blur_menu))
         menu_bar.add_cascade(menu=blurs_menu, label='Blurs')
 
         root['menu'] = menu_bar
@@ -185,6 +186,9 @@ class MainWindow:
 
         self.__median_blur_menu = MedianBlur(self.__parameters_menu)
         self.__median_blur_menu.callback = self.median_blur
+
+        self.__gaussian_blur_menu = GaussianBlur(self.__parameters_menu)
+        self.__gaussian_blur_menu.callback = self.gaussian_blur
         #       Create queue menu (notebook)
 
         queue_panel = ttk.Frame(right_panel)
@@ -276,7 +280,11 @@ class MainWindow:
         panel.grid(row=1, column=0, sticky=(N, S, W, E))
 
     def median_blur(self, ksize, accept=False):
-        self.__image_manager.median_filter(ksize, accept)
+        self.__image_manager.median_blur(ksize, accept)
+        self.refresh_image_and_commands()
+
+    def gaussian_blur(self, ksize_x, ksize_y, accept=False):
+        self.__image_manager.gaussian_blur(ksize_x, ksize_y, accept)
         self.refresh_image_and_commands()
 
     def grayscale(self):

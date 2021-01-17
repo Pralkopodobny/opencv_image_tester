@@ -103,11 +103,16 @@ class ImageManager:
                 cv2.imwrite(path, self.__prev_images[number][0])
                 print("nn s")
 
-    def median_filter(self, ksize, accept=False):
-        assert len(self.__prev_images) > 0
+    def median_blur(self, ksize, accept=False):
         self.__manipulated_image = cv2.medianBlur(self.__prev_images[-1][0], ksize=ksize)
         if accept:
             self.__prev_commands.append(f"Median blur ksize={ksize}")
+            self.__prev_images.append((self.__manipulated_image, self.__is_grayscale))
+
+    def gaussian_blur(self, ksize_x, ksize_y, accept=False):
+        self.__manipulated_image = cv2.GaussianBlur(self.__prev_images[-1][0], (ksize_x, ksize_y), 0)
+        if accept:
+            self.__prev_commands.append(f"Gaussian blur ksize={ksize_x, ksize_y}")
             self.__prev_images.append((self.__manipulated_image, self.__is_grayscale))
 
     def to_grayscale(self, accept=False):

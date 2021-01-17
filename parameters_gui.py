@@ -115,7 +115,6 @@ class CannyMenu(ParametersMenu):
 
         l2_gradient_lch = LabeledCheckButton(self._main_frame, 'L2gradient:', self.__l2_gradient)
         l2_gradient_lch.grid(row=5, column=0, sticky=(W, E), pady=10)
-        self.on_preview = print
 
     @property
     def callback(self):
@@ -142,7 +141,6 @@ class MedianBlur(ParametersMenu):
 
         ksize_ls = LabeledSpinBox(self._main_frame, 'ksize:', self.__ksize, [3, 5, 7, 9, 11])
         ksize_ls.grid(row=0, column=0, sticky=(W, E), pady=10)
-        self.on_preview = print
 
     @property
     def callback(self):
@@ -153,3 +151,29 @@ class MedianBlur(ParametersMenu):
         self._callback_function = callback_function
         self._buttons.preview_button.configure(command=lambda: self._callback_function(int(self.__ksize.get())))
         self._buttons.accept_button.configure(command=lambda: self._callback_function(int(self.__ksize.get()), True))
+
+
+class GaussianBlur(ParametersMenu):
+    def __init__(self, master=None, **kw):
+        super().__init__(master, 'Gaussian Blur', **kw)
+        self.__ksize_x = StringVar()
+        self.__ksize_y = StringVar()
+
+        ksize_x_ls = LabeledSpinBox(self._main_frame, 'ksize x:', self.__ksize_x, [3, 5, 7, 9, 11])
+        ksize_x_ls.grid(row=0, column=0, sticky=(W, E), pady=10)
+        ksize_y_ls = LabeledSpinBox(self._main_frame, 'ksize y:', self.__ksize_y, [3, 5, 7, 9, 11])
+        ksize_y_ls.grid(row=1, column=0, sticky=(W, E), pady=10)
+
+    @property
+    def callback(self):
+        return self._callback_function
+
+    @callback.setter
+    def callback(self, callback_function):
+        self._callback_function = callback_function
+        self._buttons.preview_button.configure(command=lambda: self._callback_function(int(self.__ksize_x.get()),
+                                                                                       int(self.__ksize_y.get())))
+        self._buttons.accept_button.configure(command=lambda: self._callback_function(int(self.__ksize_x.get()),
+                                                                                      int(self.__ksize_y.get()),
+                                                                                      True))
+

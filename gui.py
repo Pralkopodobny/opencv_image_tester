@@ -6,7 +6,7 @@ from PIL import Image
 from PIL import ImageTk
 import cv2
 from image_manager import ImageManager
-from parameters_gui import CannyMenu, MedianBlur, GeneralBlurMenu, BilateralFilterMenu
+from parameters_gui import CannyMenu, MedianBlur, GeneralBlurMenu, BilateralFilterMenu, GlobalThresholdMenu, AdaptiveThresholdMenu
 
 
 class ScrollableImage(ttk.Frame):
@@ -143,6 +143,12 @@ class MainWindow:
         blurs_menu.add_command(label='Bilateral Filter', command=lambda: self.show_parameters_panel(self.__bilateral_filter_menu))
         menu_bar.add_cascade(menu=blurs_menu, label='Blurs')
 
+        threshold_menu = Menu(menu_bar)
+        threshold_menu.add_command(label='Global Threshold', command=lambda: self.show_parameters_panel(self.__global_threshold_menu))
+        threshold_menu.add_command(label='Adaptive Mean Threshold', command=lambda: self.show_parameters_panel(self.__adaptive_mean_threshold_menu))
+        threshold_menu.add_command(label='Adaptive Gaussian Threshold', command=lambda: self.show_parameters_panel(self.__adaptive_gauss_threshold_menu))
+        menu_bar.add_cascade(menu=threshold_menu, label='Threshold')
+
         root['menu'] = menu_bar
 
         #       Create status bar with scale
@@ -197,6 +203,16 @@ class MainWindow:
 
         self.__bilateral_filter_menu = BilateralFilterMenu(self.__parameters_menu)
         self.__bilateral_filter_menu.callback = self.bilateral_filter
+
+        self.__global_threshold_menu = GlobalThresholdMenu(self.__parameters_menu)
+        self.__global_threshold_menu.callback = self.global_threshold
+
+        self.__adaptive_mean_threshold_menu = AdaptiveThresholdMenu(self.__parameters_menu, 'Adaptive Mean Threshold')
+        self.__adaptive_mean_threshold_menu.callback = self.mean_threshold
+
+        self.__adaptive_gauss_threshold_menu = AdaptiveThresholdMenu(self.__parameters_menu, 'Adaptive Gauss Threshold')
+        self.__adaptive_gauss_threshold_menu.callback = self.gaussian_threshold
+
         #       Create queue menu (notebook)
 
         queue_panel = ttk.Frame(right_panel)
@@ -302,6 +318,24 @@ class MainWindow:
     def bilateral_filter(self, ksize, sigma, accept=False):
         self.__image_manager.bilateral_filter(ksize, sigma, accept)
         self.refresh_image_and_commands()
+
+    def global_threshold(self, maxval, threshold, accept=False):
+        self.__image_manager.global_threshold(maxval, threshold, accept)
+        self.refresh_image_and_commands()
+
+    def mean_threshold(self, maxval, block_size, c, accept=False):
+        success, error_message = self.__image_manager.mean_threshold(maxval, block_size, c, accept)
+        if success:
+            self.refresh_image_and_commands()
+        else:
+            self.__status_bar.configure(text=f"status: {error_message}")
+
+    def gaussian_threshold(self, maxval, block_size, c, accept=False):
+        success, error_message = self.__image_manager.gaussian_threshold(maxval, block_size, c, accept)
+        if success:
+            self.refresh_image_and_commands()
+        else:
+            self.__status_bar.configure(text=f"status: {error_message}")
 
     def grayscale(self):
         success, error_message = self.__image_manager.to_grayscale(True)

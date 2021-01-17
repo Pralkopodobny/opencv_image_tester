@@ -127,6 +127,32 @@ class ImageManager:
             self.__prev_commands.append(f"Bilateral filter ksize={ksize} sigma={sigma}")
             self.__prev_images.append((self.__manipulated_image, self.__is_grayscale))
 
+    def global_threshold(self, maxval, threshold, accept=False):
+        ret, self.__manipulated_image = cv2.threshold(self.__prev_images[-1][0], threshold, maxval, cv2.THRESH_BINARY)
+        if accept:
+            self.__prev_commands.append(f"Global Threshold threshold={threshold} maxval={maxval}")
+            self.__prev_images.append((self.__manipulated_image, self.__is_grayscale))
+        pass
+
+    def mean_threshold(self, maxval, block_size, c, accept=False):
+        if not self.__prev_images[-1][1]:
+            return False, 'Image must be in grayscale'
+        self.__manipulated_image = cv2.adaptiveThreshold(self.__prev_images[-1][0], maxval, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY, block_size, c)
+        if accept:
+            self.__prev_commands.append(f"Global Threshold maxval={maxval} blocksize={block_size} C={c}")
+            self.__prev_images.append((self.__manipulated_image, self.__is_grayscale))
+        return True, ''
+
+    def gaussian_threshold(self, maxval, block_size, c, accept=False):
+        if not self.__prev_images[-1][1]:
+            return False, 'Image must be in grayscale'
+        self.__manipulated_image = cv2.adaptiveThreshold(self.__prev_images[-1][0], maxval, cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
+                                                         cv2.THRESH_BINARY, block_size, c)
+        if accept:
+            self.__prev_commands.append(f"Global Threshold maxval={maxval} blocksize={block_size} C={c}")
+            self.__prev_images.append((self.__manipulated_image, self.__is_grayscale))
+        return True, ''
+
     def to_grayscale(self, accept=False):
         if self.__is_grayscale:
             print(self.__is_grayscale)

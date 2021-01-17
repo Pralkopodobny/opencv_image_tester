@@ -36,6 +36,9 @@ class LabeledScale(ttk.Frame):
         else:
             self.__text.set(self.__variable.get())
 
+    def set(self, value):
+        self.__slider.set(value)
+
 
 class LabeledCheckButton(ttk.Frame):
     def __init__(self, master=None, text='', variable=None, **kw):
@@ -203,4 +206,68 @@ class BilateralFilterMenu(ParametersMenu):
                                                                                        round(self.__sigma.get(), 2)))
         self._buttons.accept_button.configure(command=lambda: self._callback_function(int(self.__ksize.get()),
                                                                                       round(self.__sigma.get(), 2),
+                                                                                      True))
+
+
+class GlobalThresholdMenu(ParametersMenu):
+    def __init__(self, master=None, **kw):
+        super().__init__(master, 'Global Threshold', **kw)
+        self.__max_val = IntVar()
+        self.__thresh = IntVar()
+
+        max_val_ls = LabeledScale(self._main_frame, 'maxval:', 1, 255, self.__max_val)
+        max_val_ls.grid(row=0, column=0, sticky=(E, W), pady=10)
+        max_val_ls.set(255)
+
+        thresh_ls = LabeledScale(self._main_frame, 'threshold:', 1, 255, self.__thresh)
+        thresh_ls.grid(row=1, column=0, sticky=(E, W), pady=10)
+        thresh_ls.set(150)
+
+    @property
+    def callback(self):
+        return self._callback_function
+
+    @callback.setter
+    def callback(self, callback_function):
+        self._callback_function = callback_function
+        self._buttons.preview_button.configure(command=lambda: self._callback_function(self.__max_val.get(),
+                                                                                       self.__thresh.get()))
+
+        self._buttons.accept_button.configure(command=lambda: self._callback_function(self.__max_val.get(),
+                                                                                      self.__thresh.get(),
+                                                                                      True))
+
+
+class AdaptiveThresholdMenu(ParametersMenu):
+    def __init__(self, master=None, name='Adaptive Threshold', **kw):
+        super().__init__(master, name, **kw)
+        self.__max_val = IntVar()
+        self.__c = IntVar()
+        self.__block_size = StringVar()
+
+        max_val_ls = LabeledScale(self._main_frame, 'maxval:', 1, 255, self.__max_val)
+        max_val_ls.grid(row=0, column=0, sticky=(E, W), pady=10)
+        max_val_ls.set(255)
+
+        c_ls = LabeledScale(self._main_frame, 'c:', -255, 255, self.__c)
+        c_ls.grid(row=1, column=0, sticky=(E, W), pady=10)
+        c_ls.set(10)
+
+        block_size_lsb = LabeledSpinBox(self._main_frame, 'block size:', self.__block_size, [3, 5, 7, 9, 11])
+        block_size_lsb.grid(row=2, column=0, sticky=(W, E), pady=10)
+
+    @property
+    def callback(self):
+        return self._callback_function
+
+    @callback.setter
+    def callback(self, callback_function):
+        self._callback_function = callback_function
+        self._buttons.preview_button.configure(command=lambda: self._callback_function(self.__max_val.get(),
+                                                                                       int(self.__block_size.get()),
+                                                                                       self.__c.get()))
+
+        self._buttons.accept_button.configure(command=lambda: self._callback_function(self.__max_val.get(),
+                                                                                      int(self.__block_size.get()),
+                                                                                      self.__c.get(),
                                                                                       True))

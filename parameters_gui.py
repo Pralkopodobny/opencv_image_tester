@@ -7,10 +7,11 @@ from PIL import ImageTk
 
 
 class LabeledScale(ttk.Frame):
-    def __init__(self, master=None, text='', from_=0, to=10, variable=None, **kw):
+    def __init__(self, master=None, text='', from_=0, to=10, variable=None, round_value=False, **kw):
         super().__init__(master, **kw)
         self.__text = StringVar()
         self.__variable = variable
+        self.__round_value=round_value
         self.columnconfigure(1, weight=1)
         self.columnconfigure(2, minsize=30)
 
@@ -29,7 +30,9 @@ class LabeledScale(ttk.Frame):
 
     def __update_label(self, scale):
         if self.__variable is None:
-            self.__text.set(round(scale, 2))
+            self.__text.set(round(getdouble(scale), 2))
+        elif self.__round_value:
+            self.__text.set(round(self.__variable.get(), 2))
         else:
             self.__text.set(self.__variable.get())
 
@@ -139,8 +142,8 @@ class MedianBlur(ParametersMenu):
         super().__init__(master, 'Median Blur', **kw)
         self.__ksize = StringVar()
 
-        ksize_ls = LabeledSpinBox(self._main_frame, 'ksize:', self.__ksize, [3, 5, 7, 9, 11])
-        ksize_ls.grid(row=0, column=0, sticky=(W, E), pady=10)
+        ksize_lsb = LabeledSpinBox(self._main_frame, 'ksize:', self.__ksize, [3, 5, 7, 9, 11])
+        ksize_lsb.grid(row=0, column=0, sticky=(W, E), pady=10)
 
     @property
     def callback(self):
@@ -159,10 +162,10 @@ class GeneralBlurMenu(ParametersMenu):
         self.__ksize_x = StringVar()
         self.__ksize_y = StringVar()
 
-        ksize_x_ls = LabeledSpinBox(self._main_frame, 'ksize x:', self.__ksize_x, [3, 5, 7, 9, 11])
-        ksize_x_ls.grid(row=0, column=0, sticky=(W, E), pady=10)
-        ksize_y_ls = LabeledSpinBox(self._main_frame, 'ksize y:', self.__ksize_y, [3, 5, 7, 9, 11])
-        ksize_y_ls.grid(row=1, column=0, sticky=(W, E), pady=10)
+        ksize_x_lsb = LabeledSpinBox(self._main_frame, 'ksize x:', self.__ksize_x, [3, 5, 7, 9, 11])
+        ksize_x_lsb.grid(row=0, column=0, sticky=(W, E), pady=10)
+        ksize_y_lsb = LabeledSpinBox(self._main_frame, 'ksize y:', self.__ksize_y, [3, 5, 7, 9, 11])
+        ksize_y_lsb.grid(row=1, column=0, sticky=(W, E), pady=10)
 
     @property
     def callback(self):
@@ -178,4 +181,26 @@ class GeneralBlurMenu(ParametersMenu):
                                                                                       True))
 
 
+class BilateralFilterMenu(ParametersMenu):
+    def __init__(self, master=None, **kw):
+        super().__init__(master, 'Median Blur', **kw)
+        self.__ksize = StringVar()
+        self.__sigma = DoubleVar()
 
+        ksize_lsb = LabeledSpinBox(self._main_frame, 'ksize:', self.__ksize, [3, 5, 7, 9, 11])
+        ksize_lsb.grid(row=0, column=0, sticky=(W, E), pady=10)
+        sigma_ls = LabeledScale(self._main_frame, 'sigma:', 1, 200, self.__sigma, True)
+        sigma_ls.grid(row=1, column=0, sticky=(W, E), pady=10)
+
+    @property
+    def callback(self):
+        return self._callback_function
+
+    @callback.setter
+    def callback(self, callback_function):
+        self._callback_function = callback_function
+        self._buttons.preview_button.configure(command=lambda: self._callback_function(int(self.__ksize.get()),
+                                                                                       round(self.__sigma.get(), 2)))
+        self._buttons.accept_button.configure(command=lambda: self._callback_function(int(self.__ksize.get()),
+                                                                                      round(self.__sigma.get(), 2),
+                                                                                      True))

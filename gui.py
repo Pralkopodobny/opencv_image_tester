@@ -6,7 +6,7 @@ from PIL import Image
 from PIL import ImageTk
 import cv2
 from image_manager import ImageManager
-from parameters_gui import CannyMenu, MedianBlur, GeneralBlurMenu
+from parameters_gui import CannyMenu, MedianBlur, GeneralBlurMenu, BilateralFilterMenu
 
 
 class ScrollableImage(ttk.Frame):
@@ -140,6 +140,7 @@ class MainWindow:
         blurs_menu.add_command(label='Median Blur', command=lambda: self.show_parameters_panel(self.__median_blur_menu))
         blurs_menu.add_command(label="Gaussian Blur", command=lambda: self.show_parameters_panel(self.__gaussian_blur_menu))
         blurs_menu.add_command(label='Averaging', command=lambda: self.show_parameters_panel(self.__averaging_blur_menu))
+        blurs_menu.add_command(label='Bilateral Filter', command=lambda: self.show_parameters_panel(self.__bilateral_filter_menu))
         menu_bar.add_cascade(menu=blurs_menu, label='Blurs')
 
         root['menu'] = menu_bar
@@ -193,6 +194,9 @@ class MainWindow:
 
         self.__averaging_blur_menu = GeneralBlurMenu(self.__parameters_menu, 'Averaging')
         self.__averaging_blur_menu.callback = self.averaging_blur
+
+        self.__bilateral_filter_menu = BilateralFilterMenu(self.__parameters_menu)
+        self.__bilateral_filter_menu.callback = self.bilateral_filter
         #       Create queue menu (notebook)
 
         queue_panel = ttk.Frame(right_panel)
@@ -293,6 +297,10 @@ class MainWindow:
 
     def averaging_blur(self, ksize_x, ksize_y, accept=False):
         self.__image_manager.averaging_blur(ksize_x, ksize_y, accept)
+        self.refresh_image_and_commands()
+
+    def bilateral_filter(self, ksize, sigma, accept=False):
+        self.__image_manager.bilateral_filter(ksize, sigma, accept)
         self.refresh_image_and_commands()
 
     def grayscale(self):

@@ -121,6 +121,12 @@ class ImageManager:
             self.__prev_commands.append(f"Averaging blur ksize={ksize_x, ksize_y}")
             self.__prev_images.append((self.__manipulated_image, self.__is_grayscale))
 
+    def bilateral_filter(self, ksize, sigma, accept=False):
+        self.__manipulated_image = cv2.bilateralFilter(self.__prev_images[-1][0], ksize, sigma, sigma)
+        if accept:
+            self.__prev_commands.append(f"Bilateral filter ksize={ksize} sigma={sigma}")
+            self.__prev_images.append((self.__manipulated_image, self.__is_grayscale))
+
     def to_grayscale(self, accept=False):
         if self.__is_grayscale:
             print(self.__is_grayscale)

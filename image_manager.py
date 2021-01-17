@@ -115,6 +115,12 @@ class ImageManager:
             self.__prev_commands.append(f"Gaussian blur ksize={ksize_x, ksize_y}")
             self.__prev_images.append((self.__manipulated_image, self.__is_grayscale))
 
+    def averaging_blur(self, ksize_x, ksize_y, accept=False):
+        self.__manipulated_image = cv2.blur(self.__prev_images[-1][0], (ksize_x, ksize_y))
+        if accept:
+            self.__prev_commands.append(f"Averaging blur ksize={ksize_x, ksize_y}")
+            self.__prev_images.append((self.__manipulated_image, self.__is_grayscale))
+
     def to_grayscale(self, accept=False):
         if self.__is_grayscale:
             print(self.__is_grayscale)

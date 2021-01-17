@@ -153,9 +153,9 @@ class MedianBlur(ParametersMenu):
         self._buttons.accept_button.configure(command=lambda: self._callback_function(int(self.__ksize.get()), True))
 
 
-class GaussianBlur(ParametersMenu):
-    def __init__(self, master=None, **kw):
-        super().__init__(master, 'Gaussian Blur', **kw)
+class GeneralBlurMenu(ParametersMenu):
+    def __init__(self, master=None, name='General Blur', **kw):
+        super().__init__(master, name, **kw)
         self.__ksize_x = StringVar()
         self.__ksize_y = StringVar()
 
@@ -176,4 +176,6 @@ class GaussianBlur(ParametersMenu):
         self._buttons.accept_button.configure(command=lambda: self._callback_function(int(self.__ksize_x.get()),
                                                                                       int(self.__ksize_y.get()),
                                                                                       True))
+
+
 

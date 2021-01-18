@@ -127,6 +127,7 @@ class MainWindow:
         menu_bar.add_cascade(menu=file_menu, label='File')
 
         edit_menu = Menu(menu_bar)
+        edit_menu.add_command(label='Undo', command=self.undo)
         edit_menu.add_command(label='Rotate 90° ↷', command=self.gui_update_wrapper(self.__image_manager.rotate_by_90, True))
         edit_menu.add_command(label='Rotate 180° ↷', command=self.gui_update_wrapper(self.__image_manager.rotate_by_180, True))
         edit_menu.add_command(label='Rotate -90° ↶', command=self.gui_update_wrapper(self.__image_manager.rotate_by_270, True))
@@ -254,6 +255,10 @@ class MainWindow:
         self.__queue.list = self.__image_manager.prev_commands
         self.__queue.grid(row=2, column=0, sticky=(N, S, W, E))
 
+        #       binds
+
+        root.bind('<Control-z>', self.undo)
+
     def open_file(self):
         filename = fd.askopenfilename(title="Select image", filetypes=(("jpeg files", "*.jpg"), ("png files", "*.png")))
         if filename != "":
@@ -342,6 +347,13 @@ class MainWindow:
                 self.__left_image_window.image = self.__image_manager.image_with_faces
                 self.__right_image_window.image = self.__image_manager.get_prev_image(-1)
         return wrapper
+
+    def undo(self, event=None):
+        success, error_message = self.__image_manager.undo()
+        if success:
+            self.__face_detected = False
+            self.refresh_image_and_commands()
+        self.__status_bar.configure(text=f"status: {error_message}")
 
 
 if __name__ == '__main__':

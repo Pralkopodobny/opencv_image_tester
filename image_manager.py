@@ -241,3 +241,16 @@ class ImageManager:
                 cv2.rectangle(self.__image_with_faces, (x, y), (x + w, y + h), color, thickness=thickness)
             return True, f'Detected {len(detected_faces)} faces'
 
+    def undo(self):
+        if len(self.__prev_images) <= 1:
+            return False, 'No actions to undo'
+        else:
+            self.__image = self.__prev_images[-2][0]
+            self.__manipulated_image = self.__image.copy()
+            self.__image_with_faces = self.__image.copy()
+            self.__is_grayscale = self.__prev_images[-2][1]
+            self.__prev_images.pop()
+            self.__prev_commands.pop()
+            assert (len(self.__prev_commands) == len(self.__prev_images))
+            assert (len(self.__prev_images) >= 1)
+            return True, ''

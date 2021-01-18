@@ -157,6 +157,32 @@ class ImageManager:
             self.__prev_images.append((self.__manipulated_image, self.__is_grayscale))
         return True, ''
 
+    def sobel_x(self, delta, ksize, accept=False):
+        return self.sobel(delta, ksize, 1, 0, accept)
+
+    def sobel_y(self, delta, ksize, accept=False):
+        return self.sobel(delta, ksize, 0, 1, accept)
+
+    def sobel(self, delta, ksize, dx, dy, accept=False):
+        if not self.__prev_images[-1][1]:
+            return False, 'Image must be in grayscale'
+        self.__manipulated_image = cv2.Sobel(self.__prev_images[-1][0], cv2.CV_64F, dx, dy, ksize=ksize, delta=delta)
+
+        if accept:
+            self.__prev_commands.append(f"Sobel dx={dx} dy={dy} delta={delta} ksize={ksize}")
+            self.__prev_images.append((self.__manipulated_image, self.__is_grayscale))
+        return True, ''
+
+    def laplacian(self, delta, ksize, accept=False):
+        if not self.__prev_images[-1][1]:
+            return False, 'Image must be in grayscale'
+        self.__manipulated_image = cv2.Laplacian(self.__prev_images[-1][0], cv2.CV_64F, ksize=ksize, delta=delta)
+
+        if accept:
+            self.__prev_commands.append(f"Laplacian delta={delta} ksize={ksize}")
+            self.__prev_images.append((self.__manipulated_image, self.__is_grayscale))
+        return True, ''
+
     def to_grayscale(self, accept=False):
         if self.__prev_images[-1][1]:
             return False, "An Image is already in grayscale"

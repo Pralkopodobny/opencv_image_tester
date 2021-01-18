@@ -6,7 +6,7 @@ from PIL import Image
 from PIL import ImageTk
 import cv2
 from image_manager import ImageManager
-from parameters_gui import CannyMenu, MedianBlur, GeneralBlurMenu, BilateralFilterMenu, GlobalThresholdMenu, AdaptiveThresholdMenu
+from parameters_gui import CannyMenu, MedianBlur, GeneralBlurMenu, BilateralFilterMenu, GlobalThresholdMenu, AdaptiveThresholdMenu, GradientMenu
 
 
 class ScrollableImage(ttk.Frame):
@@ -149,6 +149,12 @@ class MainWindow:
         threshold_menu.add_command(label='Adaptive Gaussian Threshold', command=lambda: self.show_parameters_panel(self.__adaptive_gauss_threshold_menu))
         menu_bar.add_cascade(menu=threshold_menu, label='Threshold')
 
+        gradient_menu = Menu(menu_bar)
+        gradient_menu.add_command(label='Sobel X', command=lambda: self.show_parameters_panel(self.__sobel_x_menu))
+        gradient_menu.add_command(label='Sobel Y', command=lambda: self.show_parameters_panel(self.__sobel_y_menu))
+        gradient_menu.add_command(label='Laplacian', command=lambda: self.show_parameters_panel(self.__laplacian_menu))
+        menu_bar.add_cascade(menu=gradient_menu, label='Gradient')
+
         root['menu'] = menu_bar
 
         #       Create status bar with scale
@@ -190,7 +196,6 @@ class MainWindow:
         self.__parameters_menu.columnconfigure(0, weight=1)
 
         self.__canny_menu = CannyMenu(self.__parameters_menu)
-        self.__parameters_menu.rowconfigure(1, weight=1)
 
         self.__median_blur_menu = MedianBlur(self.__parameters_menu)
         self.__median_blur_menu.callback = self.gui_update_wrapper(self.__image_manager.median_blur)
@@ -212,6 +217,15 @@ class MainWindow:
 
         self.__adaptive_gauss_threshold_menu = AdaptiveThresholdMenu(self.__parameters_menu, 'Adaptive Gauss Threshold')
         self.__adaptive_gauss_threshold_menu.callback = self.gui_update_wrapper(self.__image_manager.gaussian_threshold)
+
+        self.__sobel_x_menu = GradientMenu(self.__parameters_menu, 'Sobel X')
+        self.__sobel_x_menu.callback = self.gui_update_wrapper(self.__image_manager.sobel_x)
+
+        self.__sobel_y_menu = GradientMenu(self.__parameters_menu, 'Sobel Y')
+        self.__sobel_y_menu.callback = self.gui_update_wrapper(self.__image_manager.sobel_y)
+
+        self.__laplacian_menu = GradientMenu(self.__parameters_menu, 'Laplacian')
+        self.__laplacian_menu.callback = self.gui_update_wrapper(self.__image_manager.laplacian)
 
         #       Create queue menu (notebook)
 

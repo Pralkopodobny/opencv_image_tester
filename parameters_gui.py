@@ -11,15 +11,15 @@ class LabeledScale(ttk.Frame):
         super().__init__(master, **kw)
         self.__text = StringVar()
         self.__variable = variable
-        self.__round_value=round_value
+        self.__round_value = round_value
         self.columnconfigure(1, weight=1)
-        self.columnconfigure(2, minsize=30)
+        self.columnconfigure(2, minsize=40)
 
         label = ttk.Label(self, text=text, anchor='w')
         label.grid(row=0, column=0, sticky=W)
 
         self.__slider = ttk.Scale(self, variable=variable, from_=from_, to=to, command=self.__update_label)
-        self.__slider.grid(row=0, column=1, sticky=E)
+        self.__slider.grid(row=0, column=1, sticky=(W, E))
 
         value_label = ttk.Label(self, textvariable=self.__text, anchor='e')
         value_label.grid(row=0, column=2, sticky=E)
@@ -97,6 +97,7 @@ class ParametersMenu(ttk.Frame):
 
         self._main_frame = ttk.Frame(self)
         self._main_frame.grid(row=2, column=0, sticky=(W, E))
+        self._main_frame.columnconfigure(0, weight=1)
 
         self._buttons = PreviewAcceptButtons(self)
         self._buttons.grid(row=3, column=0, sticky=(W, E), pady=10)
@@ -111,16 +112,16 @@ class CannyMenu(ParametersMenu):
         self.__l2_gradient = BooleanVar()
 
         thresh1_ls = LabeledScale(self._main_frame, "Threshold 1:", 0, 255, self.__thresh1)
-        thresh1_ls.grid(row=2, column=0, sticky=(W, E), pady=10)
+        thresh1_ls.grid(row=0, column=0, sticky=(W, E), pady=10)
 
         thresh2_ls = LabeledScale(self._main_frame, "Threshold 2:", 0, 255, self.__thresh2)
-        thresh2_ls.grid(row=3, column=0, sticky=(W, E), pady=10)
+        thresh2_ls.grid(row=1, column=0, sticky=(W, E), pady=10)
 
         aperture_size_ls = LabeledScale(self._main_frame, "Aperture Size:", 1, 10, self.__aperture_size)
-        aperture_size_ls.grid(row=4, column=0, sticky=(W, E), pady=10)
+        aperture_size_ls.grid(row=2, column=0, sticky=(W, E), pady=10)
 
         l2_gradient_lch = LabeledCheckButton(self._main_frame, 'L2gradient:', self.__l2_gradient)
-        l2_gradient_lch.grid(row=5, column=0, sticky=(W, E), pady=10)
+        l2_gradient_lch.grid(row=3, column=0, sticky=(W, E), pady=10)
 
     @property
     def callback(self):
@@ -270,4 +271,31 @@ class AdaptiveThresholdMenu(ParametersMenu):
         self._buttons.accept_button.configure(command=lambda: self._callback_function(self.__max_val.get(),
                                                                                       int(self.__block_size.get()),
                                                                                       self.__c.get(),
+                                                                                      True))
+
+
+class GradientMenu(ParametersMenu):
+    def __init__(self, master=None, name='Gradient', **kw):
+        super().__init__(master, name, **kw)
+        self.__delta = IntVar()
+        self.__ksize = StringVar()
+
+        delta_ls = LabeledScale(self._main_frame, 'delta:', -255, 255, self.__delta)
+        delta_ls.grid(row=0, column=0, sticky=(W, E), pady=10)
+
+        ksize_lsb = LabeledSpinBox(self._main_frame, 'ksize:', self.__ksize, [1, 3, 5, 7, 9, 11])
+        ksize_lsb.grid(row=1, column=0, sticky=(W, E), pady=10)
+
+    @property
+    def callback(self):
+        return self._callback_function
+
+    @callback.setter
+    def callback(self, callback_function):
+        self._callback_function = callback_function
+        self._buttons.preview_button.configure(command=lambda: self._callback_function(self.__delta.get(),
+                                                                                       int(self.__ksize.get())))
+
+        self._buttons.accept_button.configure(command=lambda: self._callback_function(self.__delta.get(),
+                                                                                      int(self.__ksize.get()),
                                                                                       True))

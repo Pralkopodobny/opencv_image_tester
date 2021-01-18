@@ -320,13 +320,11 @@ class MainWindow:
     def gui_update_wrapper(self, function, always_accept=False):
         def wrapper(*args):
             success, error_message = function(*args)
-            print(success, error_message)
             self.__status_bar.configure(text=f"status: {error_message}")
             self.refresh_image_and_commands()
 
         def always_accept_wrapper(*args):
             success, error_message = function(*args, accept=True)
-            print(success, error_message)
             self.__status_bar.configure(text=f"status: {error_message}")
             self.refresh_image_and_commands()
 
@@ -338,11 +336,11 @@ class MainWindow:
     def gui_detect_wrapper(self, function):
         def wrapper(*args):
             success, error_message = function(*args)
-            print(success, error_message)
             self.__status_bar.configure(text=f"status: {error_message}")
             if success:
                 self.__face_detected = True
                 self.__left_image_window.image = self.__image_manager.image_with_faces
+                self.__right_image_window.image = self.__image_manager.get_prev_image(-1)
         return wrapper
 
 

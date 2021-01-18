@@ -63,7 +63,7 @@ class PreviewAcceptButtons(ttk.Frame):
 
 
 class LabeledSpinBox(ttk.Frame):
-    def __init__(self, master=None, text='', textvariable=None, values=range(100), **kw):
+    def __init__(self, master=None, text='', textvariable=None, values=range(100), validate_function=None, **kw):
         super().__init__(master, **kw)
         self.__values = values
 
@@ -71,13 +71,17 @@ class LabeledSpinBox(ttk.Frame):
         label.grid(row=0, column=0)
 
         spinbox = ttk.Spinbox(self, textvariable=textvariable, values=values, validate='key')
-        data_validation = self.register(self.__validate)
         if values is not None:
             spinbox.set(values[0])
-        spinbox.config(validate='key', validatecommand=(data_validation, '%P'))
+        if validate_function is not None:
+            data_validation = self.register(validate_function)
+            spinbox.config(validate='key', validatecommand=(data_validation, '%P'))
+        else:
+            data_validation = self.register(self.__default_validate)
+            spinbox.config(validate='key', validatecommand=(data_validation, '%P'))
         spinbox.grid(row=0, column=1)
 
-    def __validate(self, user_input):
+    def __default_validate(self, user_input):
         if user_input.isdigit():
             return int(user_input) % 2 == 1 and int(user_input) >= 1
         return False
@@ -293,3 +297,5 @@ class GradientMenu(ParametersMenu):
         self._buttons.accept_button.configure(command=lambda: self._callback_function(self.__delta.get(),
                                                                                       int(self.__ksize.get()),
                                                                                       True))
+
+

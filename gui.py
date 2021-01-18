@@ -126,10 +126,10 @@ class MainWindow:
         menu_bar.add_cascade(menu=file_menu, label='File')
 
         edit_menu = Menu(menu_bar)
-        edit_menu.add_command(label='Rotate 90° ↷', command=self.rotate_by_90)
-        edit_menu.add_command(label='Rotate 180° ↷', command=self.rotate_by_180)
-        edit_menu.add_command(label='Rotate -90° ↶', command=self.rotate_by_270)
-        edit_menu.add_command(label="Grayscale", command=self.grayscale)
+        edit_menu.add_command(label='Rotate 90° ↷', command=self.gui_update_wrapper(self.__image_manager.rotate_by_90))
+        edit_menu.add_command(label='Rotate 180° ↷', command=self.gui_update_wrapper(self.__image_manager.rotate_by_180))
+        edit_menu.add_command(label='Rotate -90° ↶', command=self.gui_update_wrapper(self.__image_manager.rotate_by_270))
+        edit_menu.add_command(label="Grayscale", command=self.gui_update_wrapper(self.__image_manager.to_grayscale))
         menu_bar.add_cascade(menu=edit_menu, label='Edit')
 
         simple_filters_menu = Menu(menu_bar)
@@ -193,25 +193,25 @@ class MainWindow:
         self.__parameters_menu.rowconfigure(1, weight=1)
 
         self.__median_blur_menu = MedianBlur(self.__parameters_menu)
-        self.__median_blur_menu.callback = self.median_blur
+        self.__median_blur_menu.callback = self.gui_update_wrapper(self.__image_manager.median_blur)
 
         self.__gaussian_blur_menu = GeneralBlurMenu(self.__parameters_menu, 'Gaussian blur')
-        self.__gaussian_blur_menu.callback = self.gaussian_blur
+        self.__gaussian_blur_menu.callback = self.gui_update_wrapper(self.__image_manager.gaussian_blur)
 
         self.__averaging_blur_menu = GeneralBlurMenu(self.__parameters_menu, 'Averaging')
-        self.__averaging_blur_menu.callback = self.averaging_blur
+        self.__averaging_blur_menu.callback = self.gui_update_wrapper(self.__image_manager.averaging_blur)
 
         self.__bilateral_filter_menu = BilateralFilterMenu(self.__parameters_menu)
-        self.__bilateral_filter_menu.callback = self.bilateral_filter
+        self.__bilateral_filter_menu.callback = self.gui_update_wrapper(self.__image_manager.bilateral_filter)
 
         self.__global_threshold_menu = GlobalThresholdMenu(self.__parameters_menu)
-        self.__global_threshold_menu.callback = self.global_threshold
+        self.__global_threshold_menu.callback = self.gui_update_wrapper(self.__image_manager.global_threshold)
 
         self.__adaptive_mean_threshold_menu = AdaptiveThresholdMenu(self.__parameters_menu, 'Adaptive Mean Threshold')
-        self.__adaptive_mean_threshold_menu.callback = self.mean_threshold
+        self.__adaptive_mean_threshold_menu.callback = self.gui_update_wrapper(self.__image_manager.mean_threshold)
 
         self.__adaptive_gauss_threshold_menu = AdaptiveThresholdMenu(self.__parameters_menu, 'Adaptive Gauss Threshold')
-        self.__adaptive_gauss_threshold_menu.callback = self.gaussian_threshold
+        self.__adaptive_gauss_threshold_menu.callback = self.gui_update_wrapper(self.__image_manager.gaussian_threshold)
 
         #       Create queue menu (notebook)
 
@@ -260,18 +260,6 @@ class MainWindow:
             else:
                 self.__right_image_window.image = self.__image_manager.get_prev_image(self.__queue.get_selection()[0])
 
-    def rotate_by_90(self):
-        self.__image_manager.rotate_by_90(True)
-        self.refresh_image_and_commands()
-
-    def rotate_by_180(self):
-        self.__image_manager.rotate_by_180(True)
-        self.refresh_image_and_commands()
-
-    def rotate_by_270(self):
-        self.__image_manager.rotate_by_270(True)
-        self.refresh_image_and_commands()
-
     def show_prev_image(self, i):
         self.__right_image_window.image = self.__image_manager.get_prev_image(i)
 
@@ -303,46 +291,15 @@ class MainWindow:
         self.__active_menu = panel
         panel.grid(row=1, column=0, sticky=(N, S, W, E))
 
-    def median_blur(self, ksize, accept=False):
-        self.__image_manager.median_blur(ksize, accept)
-        self.refresh_image_and_commands()
-
-    def gaussian_blur(self, ksize_x, ksize_y, accept=False):
-        self.__image_manager.gaussian_blur(ksize_x, ksize_y, accept)
-        self.refresh_image_and_commands()
-
-    def averaging_blur(self, ksize_x, ksize_y, accept=False):
-        self.__image_manager.averaging_blur(ksize_x, ksize_y, accept)
-        self.refresh_image_and_commands()
-
-    def bilateral_filter(self, ksize, sigma, accept=False):
-        self.__image_manager.bilateral_filter(ksize, sigma, accept)
-        self.refresh_image_and_commands()
-
-    def global_threshold(self, maxval, threshold, accept=False):
-        self.__image_manager.global_threshold(maxval, threshold, accept)
-        self.refresh_image_and_commands()
-
-    def mean_threshold(self, maxval, block_size, c, accept=False):
-        success, error_message = self.__image_manager.mean_threshold(maxval, block_size, c, accept)
-        if success:
-            self.refresh_image_and_commands()
-        else:
+    def gui_update_wrapper(self, function):
+        def wrapper(*args):
+            success, error_message = function(*args)
+            print(success, error_message)
             self.__status_bar.configure(text=f"status: {error_message}")
-
-    def gaussian_threshold(self, maxval, block_size, c, accept=False):
-        success, error_message = self.__image_manager.gaussian_threshold(maxval, block_size, c, accept)
-        if success:
             self.refresh_image_and_commands()
-        else:
-            self.__status_bar.configure(text=f"status: {error_message}")
+        return wrapper
 
-    def grayscale(self):
-        success, error_message = self.__image_manager.to_grayscale(True)
-        if not success:
-            self.__status_bar.configure(text=f"status: {error_message}")
-        else:
-            self.refresh_image_and_commands()
+
 
 
 if __name__ == '__main__':

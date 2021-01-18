@@ -158,8 +158,7 @@ class ImageManager:
         return True, ''
 
     def to_grayscale(self, accept=False):
-        if self.__is_grayscale:
-            print(self.__is_grayscale)
+        if self.__prev_images[-1][1]:
             return False, "An Image is already in grayscale"
         else:
             self.__manipulated_image = cv2.cvtColor(self.__prev_images[-1][0], cv2.COLOR_BGR2GRAY)

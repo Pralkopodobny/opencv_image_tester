@@ -6,7 +6,7 @@ from PIL import Image
 from PIL import ImageTk
 import cv2
 from image_manager import ImageManager
-from parameters_gui import CannyMenu, MedianBlur, GeneralBlurMenu, BilateralFilterMenu, GlobalThresholdMenu, AdaptiveThresholdMenu, GradientMenu
+from parameters_gui import CannyMenu, MedianBlur, GeneralBlurMenu, BilateralFilterMenu, GlobalThresholdMenu, AdaptiveThresholdMenu, GradientMenu, HaarCascadeMenu
 
 
 class ScrollableImage(ttk.Frame):
@@ -108,6 +108,7 @@ class MainWindow:
 
         #       Create scrollable images
 
+        self.__face_detected = False
         self.__left_image_window = ScrollableImage(main_window, image=self.__image_manager.image)
         self.__left_image_window.grid(row=0, column=0, sticky=(N, S, W, E))
 
@@ -154,7 +155,7 @@ class MainWindow:
         advanced_menu = Menu(menu_bar)
         advanced_menu.add_command(label='Canny', command=lambda: self.show_parameters_panel(self.__canny_menu))
         face_detection_menu = Menu(advanced_menu)
-        face_detection_menu.add_command(label='Haar Cascade Face Detection')
+        face_detection_menu.add_command(label='Haar Cascade Face Detection', command=lambda: self.show_parameters_panel(self.__haar_menu))
         face_detection_menu.add_command(label='Facial Landmarks Detection')
         advanced_menu.add_cascade(menu=face_detection_menu, label='Face Detection')
         menu_bar.add_cascade(menu=advanced_menu, label='Advanced')
@@ -232,6 +233,9 @@ class MainWindow:
         self.__laplacian_menu = GradientMenu(self.__parameters_menu, 'Laplacian')
         self.__laplacian_menu.callback = self.gui_update_wrapper(self.__image_manager.laplacian)
 
+        self.__haar_menu = HaarCascadeMenu(self.__parameters_menu)
+        self.__haar_menu.callback = self.gui_detect_wrapper(self.__image_manager.haar_face_detection)
+
         #       Create queue menu (notebook)
 
         queue_panel = ttk.Frame(right_panel)
@@ -273,7 +277,7 @@ class MainWindow:
             self.__scale_val = scale_temp_int
             self.__scale_var.set(str(self.__scale_val) + "%")
             self.__image_manager.scale = scale_temp_int
-            self.__left_image_window.image = self.__image_manager.image
+            self.__left_image_window.image = self.__image_manager.image if not self.__face_detected else self.__image_manager.image_with_faces
             if self.__queue.get_selection() == ():
                 self.__right_image_window.image = self.__image_manager.manipulated_image
             else:
@@ -283,6 +287,9 @@ class MainWindow:
         self.__right_image_window.image = self.__image_manager.get_prev_image(i)
 
     def refresh_image_and_commands(self):
+        if self.__face_detected:
+            self.__left_image_window.image = self.__image_manager.image
+            self.__face_detected = False
         self.__right_image_window.image = self.__image_manager.manipulated_image
         self.__queue.list = self.__image_manager.prev_commands
 
@@ -310,7 +317,7 @@ class MainWindow:
         self.__active_menu = panel
         panel.grid(row=1, column=0, sticky=(N, S, W, E))
 
-    def gui_update_wrapper(self, function, accept=False):
+    def gui_update_wrapper(self, function, always_accept=False):
         def wrapper(*args):
             success, error_message = function(*args)
             print(success, error_message)
@@ -323,10 +330,20 @@ class MainWindow:
             self.__status_bar.configure(text=f"status: {error_message}")
             self.refresh_image_and_commands()
 
-        if accept:
+        if always_accept:
             return always_accept_wrapper
         else:
             return wrapper
+
+    def gui_detect_wrapper(self, function):
+        def wrapper(*args):
+            success, error_message = function(*args)
+            print(success, error_message)
+            self.__status_bar.configure(text=f"status: {error_message}")
+            if success:
+                self.__face_detected = True
+                self.__left_image_window.image = self.__image_manager.image_with_faces
+        return wrapper
 
 
 if __name__ == '__main__':

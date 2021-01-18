@@ -107,6 +107,26 @@ class ParametersMenu(ttk.Frame):
         self._buttons.grid(row=3, column=0, sticky=(W, E), pady=10)
 
 
+class FaceDetectionMenu(ttk.Frame):
+    def __init__(self, master=None, name='', **kw):
+        super().__init__(master, **kw)
+        self._callback_function = print
+        self._accept_function = print
+        self.columnconfigure(0, weight=1)
+
+        name_label = ttk.Label(self, text=name, anchor='center')
+        name_label.grid(row=0, column=0, sticky=(W, E))
+        separator = ttk.Separator(self, orient='horizontal')
+        separator.grid(row=1, column=0, sticky=(W, E))
+
+        self._main_frame = ttk.Frame(self)
+        self._main_frame.grid(row=2, column=0, sticky=(W, E))
+        self._main_frame.columnconfigure(0, weight=1)
+
+        self._button = ttk.Button(self, text='apply')
+        self._button.grid(row=3, column=0, sticky=(W, E), pady=10)
+
+
 class CannyMenu(ParametersMenu):
     def __init__(self, master=None, **kw):
         super().__init__(master, 'Canny Edge Detection', **kw)
@@ -299,3 +319,47 @@ class GradientMenu(ParametersMenu):
                                                                                       True))
 
 
+class HaarCascadeMenu(FaceDetectionMenu):
+    def __init__(self, master=None, **kw):
+        super().__init__(master, **kw)
+        self.__colors = {'green': (0, 255, 0), 'blue': (255, 0, 0), 'red': (0, 0, 255), 'yellow': (0, 255, 255),
+                         'pink': (255, 0, 255), 'aqua': (255, 255, 0)}
+        self.__color = StringVar()
+        self.__scale_factor = StringVar()
+        self.__min_neighbours = IntVar()
+        self.__thickness = IntVar()
+
+        def scale_validate(user_input):
+            return user_input.isdigit and getdouble(user_input) >= 1.1
+
+        scale_factor_ls = LabeledSpinBox(self._main_frame, 'scale factor:', self.__scale_factor,
+                                         [x / 10 for x in range(11, 1000)], validate_function=scale_validate)
+        scale_factor_ls.grid(row=0, column=0, sticky=(W, E), pady=10)
+
+        min_neighbours = LabeledScale(self._main_frame, 'min neighbours:', 3, 20, self.__min_neighbours)
+        min_neighbours.set(10)
+        min_neighbours.grid(row=1, column=0, sticky=(W, E), pady=10)
+
+        thickness = LabeledScale(self._main_frame, 'thickness:', 1, 20, self.__thickness)
+        thickness.set(2)
+        thickness.grid(row=2, column=0, sticky=(W, E), pady=10)
+
+        def always_reject(user_input):
+            return False
+
+        color_lbx = LabeledSpinBox(self._main_frame, 'color:', self.__color,
+                                   ['green', 'blue', 'red', 'yellow', 'pink', 'aqua'], validate_function=always_reject)
+        color_lbx.grid(row=3, column=0, sticky=(W, E), pady=10)
+
+    @property
+    def callback(self):
+        return self._callback_function
+
+    @callback.setter
+    def callback(self, callback_function):
+        self._callback_function = callback_function
+        print(getdouble(self.__scale_factor.get()))
+        self._button.configure(command=lambda: self._callback_function(getdouble(self.__scale_factor.get()),
+                                                                       self.__min_neighbours.get(),
+                                                                       self.__thickness.get(),
+                                                                       self.__colors[self.__color.get()]))

@@ -1,15 +1,29 @@
 import cv2
 from PIL import Image
 from PIL import ImageTk
+import copy as cp
 
 
 class ImageManager:
     def __init__(self):
         #  image in BGR
         self.__image = cv2.imread("./azunya.png")
+
         # manipulated image by our functions
-        self.__manipulated_image = cv2.imread("./azunya.png")
+        self.__manipulated_image = self.__image.copy()
         self.__is_grayscale = False
+
+        # image with detected faces
+        self.__image_with_faces = self.__image.copy()
+
+        # load haar cascade
+        self.__haar_cascade_loaded = False
+        self.__haar_cascade = None
+        try:
+            self.__haar_cascade = cv2.CascadeClassifier('./FaceDetectionAssets/haarcascade_frontalface_default.xml')
+            self.__haar_cascade_loaded = True
+        except:
+            print('Could not load the haar cascade')
 
         # stack of images
         self.__prev_images = [(self.__image, False)]
@@ -25,6 +39,10 @@ class ImageManager:
     @property
     def manipulated_image(self):
         return self.image_to_tk(self.__manipulated_image, self.__is_grayscale)
+
+    @property
+    def image_with_faces(self):
+        return self.image_to_tk(self.__image_with_faces, False)
 
     @property
     def scale(self):
@@ -62,10 +80,11 @@ class ImageManager:
 
     def open_image_from_path(self, path):
         self.__image = cv2.imread(path, cv2.IMREAD_COLOR)
-        self.__manipulated_image = cv2.imread(path, cv2.IMREAD_COLOR)
+        self.__manipulated_image = self.__image.copy()
         self.__prev_images = [(self.__image, False)]
         self.__prev_commands = ["Initial state"]
         self.__is_grayscale = False
+        self.__image_with_faces = self.__image.copy()
 
     def rotate_by_90(self, accept=False):
         self.__manipulated_image = cv2.rotate(self.__prev_images[-1][0], cv2.ROTATE_90_CLOCKWISE)
@@ -141,7 +160,8 @@ class ImageManager:
     def mean_threshold(self, maxval, block_size, c, accept=False):
         if not self.__prev_images[-1][1]:
             return False, 'Image must be in grayscale'
-        self.__manipulated_image = cv2.adaptiveThreshold(self.__prev_images[-1][0], maxval, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY, block_size, c)
+        self.__manipulated_image = cv2.adaptiveThreshold(self.__prev_images[-1][0], maxval, cv2.ADAPTIVE_THRESH_MEAN_C,
+                                                         cv2.THRESH_BINARY, block_size, c)
         if accept:
             self.__prev_commands.append(f"Global Threshold maxval={maxval} blocksize={block_size} C={c}")
             self.__prev_images.append((self.__manipulated_image, self.__is_grayscale))
@@ -150,7 +170,8 @@ class ImageManager:
     def gaussian_threshold(self, maxval, block_size, c, accept=False):
         if not self.__prev_images[-1][1]:
             return False, 'Image must be in grayscale'
-        self.__manipulated_image = cv2.adaptiveThreshold(self.__prev_images[-1][0], maxval, cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
+        self.__manipulated_image = cv2.adaptiveThreshold(self.__prev_images[-1][0], maxval,
+                                                         cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
                                                          cv2.THRESH_BINARY, block_size, c)
         if accept:
             self.__prev_commands.append(f"Global Threshold maxval={maxval} blocksize={block_size} C={c}")
@@ -167,7 +188,7 @@ class ImageManager:
         if not self.__prev_images[-1][1]:
             return False, 'Image must be in grayscale'
         self.__manipulated_image = cv2.Sobel(self.__prev_images[-1][0], cv2.CV_64F, dx, dy, ksize=ksize, delta=delta)
-
+        print(self.__manipulated_image.dtype)
         if accept:
             self.__prev_commands.append(f"Sobel dx={dx} dy={dy} delta={delta} ksize={ksize}")
             self.__prev_images.append((self.__manipulated_image, self.__is_grayscale))
@@ -189,10 +210,10 @@ class ImageManager:
         self.__manipulated_image = cv2.Canny(self.__prev_images[-1][0], threshold1, threshold2, l2_gradient)
 
         if accept:
-            self.__prev_commands.append(f"Canny threshold1={threshold1} threshold2={threshold2} l2_gradient={l2_gradient}")
+            self.__prev_commands.append(
+                f"Canny threshold1={threshold1} threshold2={threshold2} l2_gradient={l2_gradient}")
             self.__prev_images.append((self.__manipulated_image, self.__is_grayscale))
         return True, ''
-
 
     def to_grayscale(self, accept=False):
         if self.__prev_images[-1][1]:
@@ -204,3 +225,16 @@ class ImageManager:
                 self.__is_grayscale = True
                 self.__prev_images.append((self.__manipulated_image, self.__is_grayscale))
             return True, ''
+
+    def haar_face_detection(self, scale_factor, min_neighbours, thickness=2, color=(0, 255, 0)):
+        if not self.__haar_cascade_loaded:
+            return False, 'Haar cascade could not be properly opened!'
+        elif not self.__prev_images[-1][1]:
+            return False, "Image must be in grayscale"
+        else:
+            detected_faces = self.__haar_cascade.detectMultiScale(self.__prev_images[-1][0], scale_factor, min_neighbours)
+            self.__image_with_faces = self.__image.copy()
+            for (x, y, w, h) in detected_faces:
+                cv2.rectangle(self.__image_with_faces, (x, y), (x + w, y + h), color, thickness=thickness)
+            return True, f'Detected {len(detected_faces)} faces'
+

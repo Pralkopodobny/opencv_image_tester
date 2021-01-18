@@ -2,6 +2,7 @@ import cv2
 from PIL import Image
 from PIL import ImageTk
 import copy as cp
+import numpy as np
 
 
 class ImageManager:
@@ -188,7 +189,8 @@ class ImageManager:
         if not self.__prev_images[-1][1]:
             return False, 'Image must be in grayscale'
         self.__manipulated_image = cv2.Sobel(self.__prev_images[-1][0], cv2.CV_64F, dx, dy, ksize=ksize, delta=delta)
-        print(self.__manipulated_image.dtype)
+        self.__manipulated_image = np.absolute(self.__manipulated_image)
+        self.__manipulated_image = np.uint8(self.__manipulated_image)
         if accept:
             self.__prev_commands.append(f"Sobel dx={dx} dy={dy} delta={delta} ksize={ksize}")
             self.__prev_images.append((self.__manipulated_image, self.__is_grayscale))
@@ -198,7 +200,8 @@ class ImageManager:
         if not self.__prev_images[-1][1]:
             return False, 'Image must be in grayscale'
         self.__manipulated_image = cv2.Laplacian(self.__prev_images[-1][0], cv2.CV_64F, ksize=ksize, delta=delta)
-
+        self.__manipulated_image = np.absolute(self.__manipulated_image)
+        self.__manipulated_image = np.uint8(self.__manipulated_image)
         if accept:
             self.__prev_commands.append(f"Laplacian delta={delta} ksize={ksize}")
             self.__prev_images.append((self.__manipulated_image, self.__is_grayscale))

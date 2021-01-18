@@ -72,18 +72,21 @@ class ImageManager:
         if accept:
             self.__prev_commands.append("Rotate by 90 degrees")
             self.__prev_images.append((self.__manipulated_image, self.__is_grayscale))
+        return True, ''
 
     def rotate_by_180(self, accept=False):
         self.__manipulated_image = cv2.rotate(self.__prev_images[-1][0], cv2.ROTATE_180)
         if accept:
             self.__prev_commands.append("Rotate by 180 degrees")
             self.__prev_images.append((self.__manipulated_image, self.__is_grayscale))
+        return True, ''
 
     def rotate_by_270(self, accept=False):
         self.__manipulated_image = cv2.rotate(self.__prev_images[-1][0], cv2.ROTATE_90_COUNTERCLOCKWISE)
         if accept:
             self.__prev_commands.append("Rotate by -90 degrees")
             self.__prev_images.append((self.__manipulated_image, self.__is_grayscale))
+        return True, ''
 
     def save_image(self, path: str, scale: bool, number=()):
         if number == ():
@@ -105,31 +108,35 @@ class ImageManager:
         if accept:
             self.__prev_commands.append(f"Median blur ksize={ksize}")
             self.__prev_images.append((self.__manipulated_image, self.__is_grayscale))
+        return True, ''
 
     def gaussian_blur(self, ksize_x, ksize_y, accept=False):
         self.__manipulated_image = cv2.GaussianBlur(self.__prev_images[-1][0], (ksize_x, ksize_y), 0)
         if accept:
             self.__prev_commands.append(f"Gaussian blur ksize={ksize_x, ksize_y}")
             self.__prev_images.append((self.__manipulated_image, self.__is_grayscale))
+        return True, ''
 
     def averaging_blur(self, ksize_x, ksize_y, accept=False):
         self.__manipulated_image = cv2.blur(self.__prev_images[-1][0], (ksize_x, ksize_y))
         if accept:
             self.__prev_commands.append(f"Averaging blur ksize={ksize_x, ksize_y}")
             self.__prev_images.append((self.__manipulated_image, self.__is_grayscale))
+        return True, ''
 
     def bilateral_filter(self, ksize, sigma, accept=False):
         self.__manipulated_image = cv2.bilateralFilter(self.__prev_images[-1][0], ksize, sigma, sigma)
         if accept:
             self.__prev_commands.append(f"Bilateral filter ksize={ksize} sigma={sigma}")
             self.__prev_images.append((self.__manipulated_image, self.__is_grayscale))
+        return True, ''
 
     def global_threshold(self, maxval, threshold, accept=False):
         ret, self.__manipulated_image = cv2.threshold(self.__prev_images[-1][0], threshold, maxval, cv2.THRESH_BINARY)
         if accept:
             self.__prev_commands.append(f"Global Threshold threshold={threshold} maxval={maxval}")
             self.__prev_images.append((self.__manipulated_image, self.__is_grayscale))
-        pass
+        return True, ''
 
     def mean_threshold(self, maxval, block_size, c, accept=False):
         if not self.__prev_images[-1][1]:

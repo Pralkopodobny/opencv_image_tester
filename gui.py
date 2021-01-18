@@ -126,10 +126,10 @@ class MainWindow:
         menu_bar.add_cascade(menu=file_menu, label='File')
 
         edit_menu = Menu(menu_bar)
-        edit_menu.add_command(label='Rotate 90° ↷', command=self.gui_update_wrapper(self.__image_manager.rotate_by_90))
-        edit_menu.add_command(label='Rotate 180° ↷', command=self.gui_update_wrapper(self.__image_manager.rotate_by_180))
-        edit_menu.add_command(label='Rotate -90° ↶', command=self.gui_update_wrapper(self.__image_manager.rotate_by_270))
-        edit_menu.add_command(label="Grayscale", command=self.gui_update_wrapper(self.__image_manager.to_grayscale))
+        edit_menu.add_command(label='Rotate 90° ↷', command=self.gui_update_wrapper(self.__image_manager.rotate_by_90, True))
+        edit_menu.add_command(label='Rotate 180° ↷', command=self.gui_update_wrapper(self.__image_manager.rotate_by_180, True))
+        edit_menu.add_command(label='Rotate -90° ↶', command=self.gui_update_wrapper(self.__image_manager.rotate_by_270, True))
+        edit_menu.add_command(label="Grayscale", command=self.gui_update_wrapper(self.__image_manager.to_grayscale, True))
         menu_bar.add_cascade(menu=edit_menu, label='Edit')
 
         simple_filters_menu = Menu(menu_bar)
@@ -291,15 +291,23 @@ class MainWindow:
         self.__active_menu = panel
         panel.grid(row=1, column=0, sticky=(N, S, W, E))
 
-    def gui_update_wrapper(self, function):
+    def gui_update_wrapper(self, function, accept=False):
         def wrapper(*args):
             success, error_message = function(*args)
             print(success, error_message)
             self.__status_bar.configure(text=f"status: {error_message}")
             self.refresh_image_and_commands()
-        return wrapper
 
+        def always_accept_wrapper(*args):
+            success, error_message = function(*args, accept=True)
+            print(success, error_message)
+            self.__status_bar.configure(text=f"status: {error_message}")
+            self.refresh_image_and_commands()
 
+        if accept:
+            return always_accept_wrapper
+        else:
+            return wrapper
 
 
 if __name__ == '__main__':

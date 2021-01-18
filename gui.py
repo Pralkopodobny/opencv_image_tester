@@ -132,10 +132,6 @@ class MainWindow:
         edit_menu.add_command(label="Grayscale", command=self.gui_update_wrapper(self.__image_manager.to_grayscale, True))
         menu_bar.add_cascade(menu=edit_menu, label='Edit')
 
-        simple_filters_menu = Menu(menu_bar)
-        simple_filters_menu.add_command(label='Canny', command=lambda: self.show_parameters_panel(self.__canny_menu))
-        menu_bar.add_cascade(menu=simple_filters_menu, label='Simple filters')
-
         blurs_menu = Menu(menu_bar)
         blurs_menu.add_command(label='Median Blur', command=lambda: self.show_parameters_panel(self.__median_blur_menu))
         blurs_menu.add_command(label="Gaussian Blur", command=lambda: self.show_parameters_panel(self.__gaussian_blur_menu))
@@ -154,6 +150,14 @@ class MainWindow:
         gradient_menu.add_command(label='Sobel Y', command=lambda: self.show_parameters_panel(self.__sobel_y_menu))
         gradient_menu.add_command(label='Laplacian', command=lambda: self.show_parameters_panel(self.__laplacian_menu))
         menu_bar.add_cascade(menu=gradient_menu, label='Gradient')
+
+        advanced_menu = Menu(menu_bar)
+        advanced_menu.add_command(label='Canny', command=lambda: self.show_parameters_panel(self.__canny_menu))
+        face_detection_menu = Menu(advanced_menu)
+        face_detection_menu.add_command(label='Haar Cascade Face Detection')
+        face_detection_menu.add_command(label='Facial Landmarks Detection')
+        advanced_menu.add_cascade(menu=face_detection_menu, label='Face Detection')
+        menu_bar.add_cascade(menu=advanced_menu, label='Advanced')
 
         root['menu'] = menu_bar
 

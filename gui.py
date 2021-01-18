@@ -196,6 +196,7 @@ class MainWindow:
         self.__parameters_menu.columnconfigure(0, weight=1)
 
         self.__canny_menu = CannyMenu(self.__parameters_menu)
+        self.__canny_menu.callback = self.gui_update_wrapper(self.__image_manager.canny)
 
         self.__median_blur_menu = MedianBlur(self.__parameters_menu)
         self.__median_blur_menu.callback = self.gui_update_wrapper(self.__image_manager.median_blur)

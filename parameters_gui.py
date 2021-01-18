@@ -108,7 +108,6 @@ class CannyMenu(ParametersMenu):
         super().__init__(master, 'Canny Edge Detection', **kw)
         self.__thresh1 = IntVar()
         self.__thresh2 = IntVar()
-        self.__aperture_size = IntVar()
         self.__l2_gradient = BooleanVar()
 
         thresh1_ls = LabeledScale(self._main_frame, "Threshold 1:", 0, 255, self.__thresh1)
@@ -116,9 +115,6 @@ class CannyMenu(ParametersMenu):
 
         thresh2_ls = LabeledScale(self._main_frame, "Threshold 2:", 0, 255, self.__thresh2)
         thresh2_ls.grid(row=1, column=0, sticky=(W, E), pady=10)
-
-        aperture_size_ls = LabeledScale(self._main_frame, "Aperture Size:", 1, 10, self.__aperture_size)
-        aperture_size_ls.grid(row=2, column=0, sticky=(W, E), pady=10)
 
         l2_gradient_lch = LabeledCheckButton(self._main_frame, 'L2gradient:', self.__l2_gradient)
         l2_gradient_lch.grid(row=3, column=0, sticky=(W, E), pady=10)
@@ -132,11 +128,9 @@ class CannyMenu(ParametersMenu):
         self._callback_function = callback_function
         self._buttons.preview_button.configure(command=lambda: self._callback_function(self.__thresh1.get(),
                                                                                        self.__thresh2.get(),
-                                                                                       self.__aperture_size.get(),
                                                                                        self.__l2_gradient.get()))
         self._buttons.accept_button.configure(command=lambda: self._callback_function(self.__thresh1.get(),
                                                                                       self.__thresh2.get(),
-                                                                                      self.__aperture_size.get(),
                                                                                       self.__l2_gradient.get(),
                                                                                       True))
 

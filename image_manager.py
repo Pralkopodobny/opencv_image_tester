@@ -183,6 +183,17 @@ class ImageManager:
             self.__prev_images.append((self.__manipulated_image, self.__is_grayscale))
         return True, ''
 
+    def canny(self, threshold1, threshold2, l2_gradient=False, accept=False):
+        if not self.__prev_images[-1][1]:
+            return False, 'Image must be in grayscale'
+        self.__manipulated_image = cv2.Canny(self.__prev_images[-1][0], threshold1, threshold2, l2_gradient)
+
+        if accept:
+            self.__prev_commands.append(f"Canny threshold1={threshold1} threshold2={threshold2} l2_gradient={l2_gradient}")
+            self.__prev_images.append((self.__manipulated_image, self.__is_grayscale))
+        return True, ''
+
+
     def to_grayscale(self, accept=False):
         if self.__prev_images[-1][1]:
             return False, "An Image is already in grayscale"

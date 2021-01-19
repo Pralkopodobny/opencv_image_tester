@@ -4,6 +4,7 @@ from PIL import ImageTk
 import copy as cp
 import numpy as np
 import dlib
+import matplotlib.pyplot as plt
 
 
 class ImageManager:
@@ -298,3 +299,27 @@ class ImageManager:
             assert (len(self.__prev_commands) == len(self.__prev_images))
             assert (len(self.__prev_images) >= 1)
             return True, ''
+
+    def __display_histogram(self, image, is_gray):
+        plt.figure()
+        plt.title('Histogram')
+        plt.xlabel('pixel value')
+        plt.ylabel('number of pixels')
+        if is_gray:
+            histogram = cv2.calcHist([image], [0], None, [256], [0, 256])
+            plt.plot(histogram)
+            plt.xlim([0, 256])
+        else:
+            colors = ['b', 'g', 'r']
+            for i, color in enumerate(colors):
+                histogram = cv2.calcHist([image], [i], None, [256], [0, 256])
+                plt.plot(histogram, color=color)
+        plt.xlim([0, 256])
+        plt.show(block=[0, 256])
+
+    def display_histogram(self, number=None):
+        if number is None:
+            self.__display_histogram(self.__manipulated_image, self.__is_grayscale)
+        else:
+            self.__display_histogram(self.__prev_images[number][0], self.__prev_images[number][1])
+

@@ -157,6 +157,7 @@ class MainWindow:
 
         advanced_menu = Menu(menu_bar)
         advanced_menu.add_command(label='Canny', command=lambda: self.show_parameters_panel(self.__canny_menu))
+        advanced_menu.add_command(label='Histogram', command=self.show_histogram)
         face_detection_menu = Menu(advanced_menu)
         face_detection_menu.add_command(label='Haar Cascade Face Detection', command=lambda: self.show_parameters_panel(self.__haar_menu))
         face_detection_menu.add_command(label='Facial Landmarks Detection', command=lambda: self.show_parameters_panel(self.__shape_predictor_menu))
@@ -359,6 +360,11 @@ class MainWindow:
             self.__face_detected = False
             self.refresh_image_and_commands()
         self.__status_bar.configure(text=f"status: {error_message}")
+
+    def show_histogram(self):
+        selection = self.__queue.get_selection()
+        num = None if selection == () else selection[0]
+        self.__image_manager.display_histogram(num)
 
 
 if __name__ == '__main__':

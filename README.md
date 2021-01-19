@@ -25,6 +25,7 @@ diagram below:
 ![](Assets/ClassDiagram.jpg)
 
 ##Usage
+
 ###Graphical interface
 Graphical interface contains 6 sections (see image below)
 

@@ -176,7 +176,8 @@ class MainWindow:
         bottom_panel.columnconfigure(0, weight=1)
         bottom_panel.grid(row=1, column=0, sticky=(W, E), columnspan=3)
 
-        self.__status_bar = ttk.Label(bottom_panel, text="status:", anchor="w")
+        self.__status_bar = ttk.Label(bottom_panel, text="Tip: you can select parameters menu using Ctrl-q and previous"
+                                                         " commands queue using Ctrl-p", anchor="w")
         self.__status_bar.grid(row=0, column=0, sticky=(E, W))
 
         scale_label = ttk.Label(bottom_panel, textvariable=self.__scale_var)
@@ -198,7 +199,7 @@ class MainWindow:
         self.__active_menu = None
 
         self.__parameters_menu = ttk.Frame(self.__right_panel)
-        self.__right_panel.add(self.__parameters_menu, text='parameters')
+        self.__right_panel.add(self.__parameters_menu, text='Parameters')
 
         parameters_separator = ttk.Separator(self.__parameters_menu, orient='horizontal')
         parameters_separator.grid(row=0, column=0, sticky=(W, E))
@@ -246,9 +247,9 @@ class MainWindow:
         #       Create queue menu (notebook)
 
         queue_panel = ttk.Frame(self.__right_panel)
-        self.__right_panel.add(queue_panel, text='commands')
+        self.__right_panel.add(queue_panel, text='Commands')
 
-        queue_label = ttk.Label(queue_panel, text='Queue menu', anchor='center')
+        queue_label = ttk.Label(queue_panel, text='Previous Commands', anchor='center')
         queue_label.grid(row=0, column=0, sticky=(W, E))
 
         queue_separator = ttk.Separator(queue_panel, orient='horizontal')
@@ -337,12 +338,12 @@ class MainWindow:
     def gui_update_wrapper(self, function, always_accept=False):
         def wrapper(*args):
             success, error_message = function(*args)
-            self.__status_bar.configure(text=f"status: {error_message}")
+            self.__status_bar.configure(text=f"Status: {error_message}")
             self.refresh_image_and_commands()
 
         def always_accept_wrapper(*args):
             success, error_message = function(*args, accept=True)
-            self.__status_bar.configure(text=f"status: {error_message}")
+            self.__status_bar.configure(text=f"Status: {error_message}")
             self.refresh_image_and_commands()
 
         if always_accept:
@@ -353,7 +354,7 @@ class MainWindow:
     def gui_detect_wrapper(self, function):
         def wrapper(*args):
             success, error_message = function(*args)
-            self.__status_bar.configure(text=f"status: {error_message}")
+            self.__status_bar.configure(text=f"Status: {error_message}")
             if success:
                 self.__face_detected = True
                 self.__left_image_window.image = self.__image_manager.image_with_faces
@@ -365,7 +366,7 @@ class MainWindow:
         if success:
             self.__face_detected = False
             self.refresh_image_and_commands()
-        self.__status_bar.configure(text=f"status: {error_message}")
+        self.__status_bar.configure(text=f"Status: {error_message}")
 
     def show_histogram(self):
         selection = self.__queue.get_selection()
@@ -377,6 +378,5 @@ class MainWindow:
 
     def event_wrapper(self, function):
         def wrapper(event, *args):
-            print('a')
             return function(*args)
         return wrapper

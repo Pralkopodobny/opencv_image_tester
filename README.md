@@ -24,9 +24,9 @@ diagram below:
 
 ![](Assets/ClassDiagram.jpg)
 
-##Usage
+## Usage
 
-###Graphical interface
+### Graphical interface
 Graphical interface contains 6 sections (see image below)
 
 ![](Assets/Gui1.jpg)
@@ -38,7 +38,7 @@ Graphical interface contains 6 sections (see image below)
 5. Right menu which contains options to change parameters of used functions and history of changes (Commands option)
 6. Scale which affects displayed images (note: application still stores them in original size to prevent quality drop)
 
-###Functions
+### Functions
 Application provides you options to:
 
 1. Open your png or jpg files.
@@ -59,7 +59,7 @@ On [dlib github](https://github.com/davisking/dlib-models) you can find free to 
 
 12. You can calculate histogram of an image.
 
-##Gallery
+## Gallery
 ![](Assets/Gallery1.jpg)
 Face detected by opencv default haar cascade
 

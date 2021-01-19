@@ -125,15 +125,15 @@ class MainWindow:
 
         file_menu = Menu(menu_bar)
         file_menu.add_command(label='Open', command=self.open_file)
-        file_menu.add_command(label="Save", command=self.save_image_as)
+        file_menu.add_command(label="Save", command=self.save_image_as, accelerator='Ctrl-s')
         menu_bar.add_cascade(menu=file_menu, label='File')
 
         edit_menu = Menu(menu_bar)
-        edit_menu.add_command(label='Undo', command=self.undo)
+        edit_menu.add_command(label='Undo', command=self.undo, accelerator='Ctrl-z')
         edit_menu.add_command(label='Rotate 90° ↷', command=self.gui_update_wrapper(self.__image_manager.rotate_by_90, True))
         edit_menu.add_command(label='Rotate 180° ↷', command=self.gui_update_wrapper(self.__image_manager.rotate_by_180, True))
         edit_menu.add_command(label='Rotate -90° ↶', command=self.gui_update_wrapper(self.__image_manager.rotate_by_270, True))
-        edit_menu.add_command(label="Grayscale", command=self.gui_update_wrapper(self.__image_manager.to_grayscale, True))
+        edit_menu.add_command(label="Grayscale", command=self.gui_update_wrapper(self.__image_manager.to_grayscale, True), accelerator='Ctrl-g')
         menu_bar.add_cascade(menu=edit_menu, label='Edit')
 
         blurs_menu = Menu(menu_bar)
@@ -189,16 +189,16 @@ class MainWindow:
         #       Create right panel (notebook)
 
         main_window.columnconfigure(2, minsize=180)
-        right_panel = ttk.Notebook(main_window)
-        right_panel.grid(row=0, column=2, sticky=(N, S, W, E))
-        right_panel.columnconfigure(0, weight=1)
-        right_panel.rowconfigure(0, weight=1)
+        self.__right_panel = ttk.Notebook(main_window)
+        self.__right_panel.grid(row=0, column=2, sticky=(N, S, W, E))
+        self.__right_panel.columnconfigure(0, weight=1)
+        self.__right_panel.rowconfigure(0, weight=1)
 
         #       Create parameters menu (notebook)
         self.__active_menu = None
 
-        self.__parameters_menu = ttk.Frame(right_panel)
-        right_panel.add(self.__parameters_menu, text='parameters')
+        self.__parameters_menu = ttk.Frame(self.__right_panel)
+        self.__right_panel.add(self.__parameters_menu, text='parameters')
 
         parameters_separator = ttk.Separator(self.__parameters_menu, orient='horizontal')
         parameters_separator.grid(row=0, column=0, sticky=(W, E))
@@ -245,8 +245,8 @@ class MainWindow:
 
         #       Create queue menu (notebook)
 
-        queue_panel = ttk.Frame(right_panel)
-        right_panel.add(queue_panel, text='commands')
+        queue_panel = ttk.Frame(self.__right_panel)
+        self.__right_panel.add(queue_panel, text='commands')
 
         queue_label = ttk.Label(queue_panel, text='Queue menu', anchor='center')
         queue_label.grid(row=0, column=0, sticky=(W, E))
@@ -264,6 +264,11 @@ class MainWindow:
         #       binds
 
         root.bind('<Control-z>', self.undo)
+        root.bind('<Control-p>', self.show_parameters_menu)
+        root.bind('<Control-q>', lambda event: self.show_parameters_menu(event, 1))
+        root.bind('<Control-g>', self.event_wrapper(self.gui_update_wrapper(self.__image_manager.to_grayscale, True)))
+        root.bind('<Control-s>', self.event_wrapper(self.save_image_as))
+
 
     def open_file(self):
         filename = fd.askopenfilename(title="Select image", filetypes=(("jpeg files", "*.jpg"), ("png files", "*.png")))
@@ -327,6 +332,7 @@ class MainWindow:
             self.__active_menu.grid_forget()
         self.__active_menu = panel
         panel.grid(row=1, column=0, sticky=(N, S, W, E))
+        self.show_parameters_menu()
 
     def gui_update_wrapper(self, function, always_accept=False):
         def wrapper(*args):
@@ -365,3 +371,12 @@ class MainWindow:
         selection = self.__queue.get_selection()
         num = None if selection == () else selection[0]
         self.__image_manager.display_histogram(num)
+
+    def show_parameters_menu(self, event=None, menu: int = 0):
+        self.__right_panel.select(menu)
+
+    def event_wrapper(self, function):
+        def wrapper(event, *args):
+            print('a')
+            return function(*args)
+        return wrapper

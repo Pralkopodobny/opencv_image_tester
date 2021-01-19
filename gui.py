@@ -240,7 +240,7 @@ class MainWindow:
         self.__haar_menu.callback = self.gui_detect_wrapper(self.__image_manager.haar_face_detection)
 
         self.__shape_predictor_menu = ShapePredictorMenu(self.__parameters_menu)
-        self.__shape_predictor_menu.callback = print
+        self.__shape_predictor_menu.callback = self.gui_detect_wrapper(self.__image_manager.dlib_face_shape_prediction)
 
         #       Create queue menu (notebook)
 

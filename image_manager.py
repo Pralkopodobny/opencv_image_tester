@@ -3,6 +3,7 @@ from PIL import Image
 from PIL import ImageTk
 import copy as cp
 import numpy as np
+import dlib
 
 
 class ImageManager:
@@ -25,6 +26,16 @@ class ImageManager:
             self.__haar_cascade_loaded = True
         except:
             print('Could not load the haar cascade')
+
+        # load shape predictor
+        self.__detector = dlib.get_frontal_face_detector()
+        self.__shape_predictor_loaded = False
+        self.__shape_predictor = None
+        try:
+            self.__shape_predictor = dlib.shape_predictor("./FaceDetectionAssets/shape_predictor_68_face_landmarks.dat")
+            self.__shape_predictor_loaded = True
+        except:
+            print('Could not load the shape predictor')
 
         # stack of images
         self.__prev_images = [(self.__image, False)]
@@ -239,6 +250,39 @@ class ImageManager:
             self.__image_with_faces = self.__image.copy()
             for (x, y, w, h) in detected_faces:
                 cv2.rectangle(self.__image_with_faces, (x, y), (x + w, y + h), color, thickness=thickness)
+            return True, f'Detected {len(detected_faces)} faces'
+
+    def dlib_face_shape_prediction(self, eye_color=(0, 255, 0), mouth_color=(255, 0, 0), face_color=(0, 0, 255), frame_color=(0, 255, 255), thickness=2):
+        if not self.__shape_predictor_loaded:
+            return False, 'Dlib shape predictor could not be opened'
+        elif not self.__prev_images[-1][1]:
+            return False, "Image must be in grayscale"
+        else:
+            detected_faces = self.__detector(self.__prev_images[-1][0])
+            self.__image_with_faces = self.__image.copy()
+
+            for face in detected_faces:
+                x1 = face.left()
+                y1 = face.top()
+                x2 = face.right()
+                y2 = face.bottom()
+                cv2.rectangle(self.__image_with_faces, (x1, y1), (x2, y2), frame_color, thickness=thickness)
+
+                landmarks = self.__shape_predictor(self.__prev_images[-1][0], face)
+
+                for p in range(0, 36):
+                    # -1 means it will fill the circle
+                    centre = landmarks.part(p).x, landmarks.part(p).y
+                    cv2.circle(self.__image_with_faces, centre, thickness, face_color, -1)
+
+                for p in range(36, 48):
+                    centre = landmarks.part(p).x, landmarks.part(p).y
+                    cv2.circle(self.__image_with_faces, centre, thickness, eye_color, -1)
+
+                for p in range(48, 68):
+                    centre = landmarks.part(p).x, landmarks.part(p).y
+                    cv2.circle(self.__image_with_faces, centre, thickness, mouth_color, -1)
+
             return True, f'Detected {len(detected_faces)} faces'
 
     def undo(self):

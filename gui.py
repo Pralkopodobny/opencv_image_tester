@@ -365,11 +365,3 @@ class MainWindow:
         selection = self.__queue.get_selection()
         num = None if selection == () else selection[0]
         self.__image_manager.display_histogram(num)
-
-
-if __name__ == '__main__':
-    root = Tk()
-    app = MainWindow(root)
-    root.minsize(1000, 500)
-    root.geometry("1000x500")
-    root.mainloop()

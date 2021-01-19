@@ -12,17 +12,15 @@ class LabeledScale(ttk.Frame):
         self.__text = StringVar()
         self.__variable = variable
         self.__round_value = round_value
-        self.columnconfigure(1, weight=1)
-        self.columnconfigure(2, minsize=40)
 
         label = ttk.Label(self, text=text, anchor='w')
         label.grid(row=0, column=0, sticky=W)
 
         self.__slider = ttk.Scale(self, variable=variable, from_=from_, to=to, command=self.__update_label)
-        self.__slider.grid(row=0, column=1, sticky=(W, E))
+        self.__slider.grid(row=1, column=0, sticky=(W, E))
 
         value_label = ttk.Label(self, textvariable=self.__text, anchor='e')
-        value_label.grid(row=0, column=2, sticky=E)
+        value_label.grid(row=1, column=1, sticky=E)
 
         if variable is not None:
             self.__text.set(variable.get())
@@ -67,8 +65,8 @@ class LabeledSpinBox(ttk.Frame):
         super().__init__(master, **kw)
         self.__values = values
 
-        label = ttk.Label(self, text=text)
-        label.grid(row=0, column=0)
+        label = ttk.Label(self, text=text, anchor='e')
+        label.grid(row=0, column=0, sticky=W, pady=2)
 
         spinbox = ttk.Spinbox(self, textvariable=textvariable, values=values, validate='key')
         if values is not None:
@@ -79,7 +77,7 @@ class LabeledSpinBox(ttk.Frame):
         else:
             data_validation = self.register(self.__default_validate)
             spinbox.config(validate='key', validatecommand=(data_validation, '%P'))
-        spinbox.grid(row=0, column=1)
+        spinbox.grid(row=1, column=0)
 
     def __default_validate(self, user_input):
         if user_input.isdigit():
@@ -100,11 +98,11 @@ class ParametersMenu(ttk.Frame):
         separator.grid(row=1, column=0, sticky=(W, E))
 
         self._main_frame = ttk.Frame(self)
-        self._main_frame.grid(row=2, column=0, sticky=(W, E))
+        self._main_frame.grid(row=2, column=0, sticky=(W, E), padx=5)
         self._main_frame.columnconfigure(0, weight=1)
 
         self._buttons = PreviewAcceptButtons(self)
-        self._buttons.grid(row=3, column=0, sticky=(W, E), pady=10)
+        self._buttons.grid(row=3, column=0, sticky=(W, E), pady=10, padx=5)
 
 
 class FaceDetectionMenu(ttk.Frame):
@@ -115,15 +113,15 @@ class FaceDetectionMenu(ttk.Frame):
         self.columnconfigure(0, weight=1)
 
         name_label = ttk.Label(self, text=name, anchor='center')
-        name_label.grid(row=0, column=0, sticky=(W, E))
+        name_label.grid(row=0, column=0, sticky=(W, E), padx=5)
         separator = ttk.Separator(self, orient='horizontal')
         separator.grid(row=1, column=0, sticky=(W, E))
 
         self._main_frame = ttk.Frame(self)
-        self._main_frame.grid(row=2, column=0, sticky=(W, E))
+        self._main_frame.grid(row=2, column=0, sticky=(W, E), padx=5)
         self._main_frame.columnconfigure(0, weight=1)
 
-        self._button = ttk.Button(self, text='apply')
+        self._button = ttk.Button(self, text='Apply')
         self._button.grid(row=3, column=0, sticky=(W, E), pady=10)
 
 
@@ -164,7 +162,7 @@ class MedianBlur(ParametersMenu):
         super().__init__(master, 'Median Blur', **kw)
         self.__ksize = StringVar()
 
-        ksize_lsb = LabeledSpinBox(self._main_frame, 'ksize:', self.__ksize, [3, 5, 7, 9, 11])
+        ksize_lsb = LabeledSpinBox(self._main_frame, 'Ksize:', self.__ksize, [3, 5, 7, 9, 11])
         ksize_lsb.grid(row=0, column=0, sticky=(W, E), pady=10)
 
     @property
@@ -184,9 +182,9 @@ class GeneralBlurMenu(ParametersMenu):
         self.__ksize_x = StringVar()
         self.__ksize_y = StringVar()
 
-        ksize_x_lsb = LabeledSpinBox(self._main_frame, 'ksize x:', self.__ksize_x, [3, 5, 7, 9, 11])
+        ksize_x_lsb = LabeledSpinBox(self._main_frame, 'Ksize x:', self.__ksize_x, [3, 5, 7, 9, 11])
         ksize_x_lsb.grid(row=0, column=0, sticky=(W, E), pady=10)
-        ksize_y_lsb = LabeledSpinBox(self._main_frame, 'ksize y:', self.__ksize_y, [3, 5, 7, 9, 11])
+        ksize_y_lsb = LabeledSpinBox(self._main_frame, 'Ksize y:', self.__ksize_y, [3, 5, 7, 9, 11])
         ksize_y_lsb.grid(row=1, column=0, sticky=(W, E), pady=10)
 
     @property
@@ -209,9 +207,9 @@ class BilateralFilterMenu(ParametersMenu):
         self.__ksize = StringVar()
         self.__sigma = DoubleVar()
 
-        ksize_lsb = LabeledSpinBox(self._main_frame, 'ksize:', self.__ksize, [3, 5, 7, 9, 11])
+        ksize_lsb = LabeledSpinBox(self._main_frame, 'Ksize:', self.__ksize, [3, 5, 7, 9, 11])
         ksize_lsb.grid(row=0, column=0, sticky=(W, E), pady=10)
-        sigma_ls = LabeledScale(self._main_frame, 'sigma:', 1, 200, self.__sigma, True)
+        sigma_ls = LabeledScale(self._main_frame, 'Sigma:', 1, 200, self.__sigma, True)
         sigma_ls.grid(row=1, column=0, sticky=(W, E), pady=10)
 
     @property
@@ -234,11 +232,11 @@ class GlobalThresholdMenu(ParametersMenu):
         self.__max_val = IntVar()
         self.__thresh = IntVar()
 
-        max_val_ls = LabeledScale(self._main_frame, 'maxval:', 1, 255, self.__max_val)
+        max_val_ls = LabeledScale(self._main_frame, 'Maxval:', 1, 255, self.__max_val)
         max_val_ls.grid(row=0, column=0, sticky=(E, W), pady=10)
         max_val_ls.set(255)
 
-        thresh_ls = LabeledScale(self._main_frame, 'threshold:', 1, 255, self.__thresh)
+        thresh_ls = LabeledScale(self._main_frame, 'Threshold:', 1, 255, self.__thresh)
         thresh_ls.grid(row=1, column=0, sticky=(E, W), pady=10)
         thresh_ls.set(150)
 
@@ -264,15 +262,15 @@ class AdaptiveThresholdMenu(ParametersMenu):
         self.__c = IntVar()
         self.__block_size = StringVar()
 
-        max_val_ls = LabeledScale(self._main_frame, 'maxval:', 1, 255, self.__max_val)
+        max_val_ls = LabeledScale(self._main_frame, 'Maxval:', 1, 255, self.__max_val)
         max_val_ls.grid(row=0, column=0, sticky=(E, W), pady=10)
         max_val_ls.set(255)
 
-        c_ls = LabeledScale(self._main_frame, 'c:', -255, 255, self.__c)
+        c_ls = LabeledScale(self._main_frame, 'C:', -255, 255, self.__c)
         c_ls.grid(row=1, column=0, sticky=(E, W), pady=10)
         c_ls.set(10)
 
-        block_size_lsb = LabeledSpinBox(self._main_frame, 'block size:', self.__block_size, [3, 5, 7, 9, 11])
+        block_size_lsb = LabeledSpinBox(self._main_frame, 'Block size:', self.__block_size, [3, 5, 7, 9, 11])
         block_size_lsb.grid(row=2, column=0, sticky=(W, E), pady=10)
 
     @property
@@ -298,10 +296,10 @@ class GradientMenu(ParametersMenu):
         self.__delta = IntVar()
         self.__ksize = StringVar()
 
-        delta_ls = LabeledScale(self._main_frame, 'delta:', -255, 255, self.__delta)
+        delta_ls = LabeledScale(self._main_frame, 'Delta:', -255, 255, self.__delta)
         delta_ls.grid(row=0, column=0, sticky=(W, E), pady=10)
 
-        ksize_lsb = LabeledSpinBox(self._main_frame, 'ksize:', self.__ksize, [1, 3, 5, 7, 9, 11])
+        ksize_lsb = LabeledSpinBox(self._main_frame, 'Ksize:', self.__ksize, [1, 3, 5, 7, 9, 11])
         ksize_lsb.grid(row=1, column=0, sticky=(W, E), pady=10)
 
     @property
@@ -332,15 +330,15 @@ class HaarCascadeMenu(FaceDetectionMenu):
         def scale_validate(user_input):
             return user_input.isdigit and getdouble(user_input) >= 1.1
 
-        scale_factor_ls = LabeledSpinBox(self._main_frame, 'scale factor:', self.__scale_factor,
+        scale_factor_ls = LabeledSpinBox(self._main_frame, 'Scale factor:', self.__scale_factor,
                                          [x / 10 for x in range(11, 1000)], validate_function=scale_validate)
         scale_factor_ls.grid(row=0, column=0, sticky=(W, E), pady=10)
 
-        min_neighbours = LabeledScale(self._main_frame, 'min neighbours:', 3, 20, self.__min_neighbours)
+        min_neighbours = LabeledScale(self._main_frame, 'Min neighbours:', 3, 20, self.__min_neighbours)
         min_neighbours.set(10)
         min_neighbours.grid(row=1, column=0, sticky=(W, E), pady=10)
 
-        thickness = LabeledScale(self._main_frame, 'thickness:', 1, 20, self.__thickness)
+        thickness = LabeledScale(self._main_frame, 'Thickness:', 1, 20, self.__thickness)
         thickness.set(2)
         thickness.grid(row=2, column=0, sticky=(W, E), pady=10)
 

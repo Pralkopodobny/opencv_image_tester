@@ -59,6 +59,8 @@ class ScrollableList(ttk.Frame):
         h_scroll = ttk.Scrollbar(self, orient=HORIZONTAL, command=self.__list_box.xview)
         h_scroll.grid(row=1, column=0, sticky=(W, E))
 
+        self.__list_box.config(yscrollcommand=v_scroll.set, xscrollcommand=h_scroll.set)
+
         self.__list_box.bind("<<ListboxSelect>>", self.__callback)
 
     @property
@@ -185,7 +187,7 @@ class MainWindow:
 
         #       Create right panel (notebook)
 
-        main_window.columnconfigure(2, minsize=220)
+        main_window.columnconfigure(2, minsize=180)
         right_panel = ttk.Notebook(main_window)
         right_panel.grid(row=0, column=2, sticky=(N, S, W, E))
         right_panel.columnconfigure(0, weight=1)

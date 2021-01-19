@@ -6,7 +6,7 @@ from PIL import Image
 from PIL import ImageTk
 import cv2
 from image_manager import ImageManager
-from parameters_gui import CannyMenu, MedianBlur, GeneralBlurMenu, BilateralFilterMenu, GlobalThresholdMenu, AdaptiveThresholdMenu, GradientMenu, HaarCascadeMenu
+from parameters_gui import CannyMenu, MedianBlur, GeneralBlurMenu, BilateralFilterMenu, GlobalThresholdMenu, AdaptiveThresholdMenu, GradientMenu, HaarCascadeMenu, ShapePredictorMenu
 
 
 class ScrollableImage(ttk.Frame):
@@ -159,7 +159,7 @@ class MainWindow:
         advanced_menu.add_command(label='Canny', command=lambda: self.show_parameters_panel(self.__canny_menu))
         face_detection_menu = Menu(advanced_menu)
         face_detection_menu.add_command(label='Haar Cascade Face Detection', command=lambda: self.show_parameters_panel(self.__haar_menu))
-        face_detection_menu.add_command(label='Facial Landmarks Detection')
+        face_detection_menu.add_command(label='Facial Landmarks Detection', command=lambda: self.show_parameters_panel(self.__shape_predictor_menu))
         advanced_menu.add_cascade(menu=face_detection_menu, label='Face Detection')
         menu_bar.add_cascade(menu=advanced_menu, label='Advanced')
 
@@ -238,6 +238,9 @@ class MainWindow:
 
         self.__haar_menu = HaarCascadeMenu(self.__parameters_menu)
         self.__haar_menu.callback = self.gui_detect_wrapper(self.__image_manager.haar_face_detection)
+
+        self.__shape_predictor_menu = ShapePredictorMenu(self.__parameters_menu)
+        self.__shape_predictor_menu.callback = print
 
         #       Create queue menu (notebook)
 

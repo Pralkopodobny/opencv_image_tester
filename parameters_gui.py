@@ -68,21 +68,24 @@ class LabeledSpinBox(ttk.Frame):
         label = ttk.Label(self, text=text, anchor='e')
         label.grid(row=0, column=0, sticky=W, pady=2)
 
-        spinbox = ttk.Spinbox(self, textvariable=textvariable, values=values, validate='key')
+        self.__spinbox = ttk.Spinbox(self, textvariable=textvariable, values=values, validate='key')
         if values is not None:
-            spinbox.set(values[0])
+            self.__spinbox.set(values[0])
         if validate_function is not None:
             data_validation = self.register(validate_function)
-            spinbox.config(validate='key', validatecommand=(data_validation, '%P'))
+            self.__spinbox.config(validate='key', validatecommand=(data_validation, '%P'))
         else:
             data_validation = self.register(self.__default_validate)
-            spinbox.config(validate='key', validatecommand=(data_validation, '%P'))
-        spinbox.grid(row=1, column=0)
+            self.__spinbox.config(validate='key', validatecommand=(data_validation, '%P'))
+        self.__spinbox.grid(row=1, column=0)
 
     def __default_validate(self, user_input):
         if user_input.isdigit():
             return int(user_input) % 2 == 1 and int(user_input) >= 1
         return False
+
+    def set(self, value):
+        self.__spinbox.set(value)
 
 
 class ParametersMenu(ttk.Frame):
@@ -108,6 +111,9 @@ class ParametersMenu(ttk.Frame):
 class FaceDetectionMenu(ttk.Frame):
     def __init__(self, master=None, name='', **kw):
         super().__init__(master, **kw)
+        self._color_types = ['green', 'blue', 'red', 'yellow', 'pink', 'aqua']
+        self._color_to_bgr = {'green': (0, 255, 0), 'blue': (255, 0, 0), 'red': (0, 0, 255), 'yellow': (0, 255, 255),
+                              'pink': (255, 0, 255), 'aqua': (255, 255, 0)}
         self._callback_function = print
         self._accept_function = print
         self.columnconfigure(0, weight=1)
@@ -319,9 +325,7 @@ class GradientMenu(ParametersMenu):
 
 class HaarCascadeMenu(FaceDetectionMenu):
     def __init__(self, master=None, **kw):
-        super().__init__(master, **kw)
-        self.__colors = {'green': (0, 255, 0), 'blue': (255, 0, 0), 'red': (0, 0, 255), 'yellow': (0, 255, 255),
-                         'pink': (255, 0, 255), 'aqua': (255, 255, 0)}
+        super().__init__(master, 'Haar Cascade', **kw)
         self.__color = StringVar()
         self.__scale_factor = StringVar()
         self.__min_neighbours = IntVar()
@@ -346,7 +350,7 @@ class HaarCascadeMenu(FaceDetectionMenu):
             return False
 
         color_lbx = LabeledSpinBox(self._main_frame, 'color:', self.__color,
-                                   ['green', 'blue', 'red', 'yellow', 'pink', 'aqua'], validate_function=always_reject)
+                                   self._color_types, validate_function=always_reject)
         color_lbx.grid(row=3, column=0, sticky=(W, E), pady=10)
 
     @property
@@ -356,8 +360,58 @@ class HaarCascadeMenu(FaceDetectionMenu):
     @callback.setter
     def callback(self, callback_function):
         self._callback_function = callback_function
-        print(getdouble(self.__scale_factor.get()))
         self._button.configure(command=lambda: self._callback_function(getdouble(self.__scale_factor.get()),
                                                                        self.__min_neighbours.get(),
                                                                        self.__thickness.get(),
-                                                                       self.__colors[self.__color.get()]))
+                                                                       self._color_to_bgr[self.__color.get()]))
+
+
+class ShapePredictorMenu(FaceDetectionMenu):
+    def __init__(self, master=None, **kw):
+        super().__init__(master, 'Shape Predictor', **kw)
+
+        self.__eye_color = StringVar()
+        self.__mouth_color = StringVar()
+        self.__face_color = StringVar()
+        self.__frame_color = StringVar()
+        self.__thickness = IntVar()
+
+        thickness = LabeledScale(self._main_frame, 'Thickness:', 1, 20, self.__thickness)
+        thickness.set(2)
+        thickness.grid(row=0, column=0, sticky=(W, E), pady=10)
+
+        def always_reject(user_input):
+            return False
+
+        eye_color_lbx = LabeledSpinBox(self._main_frame, 'Eye color:', self.__eye_color, self._color_types,
+                                       validate_function=always_reject)
+        eye_color_lbx.grid(row=1, column=0, sticky=(W, E), pady=10)
+        eye_color_lbx.set(self._color_types[0])
+
+        mouth_color_lbx = LabeledSpinBox(self._main_frame, 'Mouth color:', self.__mouth_color, self._color_types,
+                                         validate_function=always_reject)
+        mouth_color_lbx.grid(row=2, column=0, sticky=(W, E), pady=10)
+        mouth_color_lbx.set(self._color_types[1])
+
+        face_color_lbx = LabeledSpinBox(self._main_frame, 'Face color:', self.__face_color, self._color_types,
+                                        validate_function=always_reject)
+        face_color_lbx.grid(row=3, column=0, sticky=(W, E), pady=10)
+        face_color_lbx.set(self._color_types[2])
+
+        frame_color_lbx = LabeledSpinBox(self._main_frame, 'Frame color:', self.__frame_color, self._color_types,
+                                         validate_function=always_reject)
+        frame_color_lbx.grid(row=4, column=0, sticky=(W, E), pady=10)
+        frame_color_lbx.set(self._color_types[3])
+
+    @property
+    def callback(self):
+        return self._callback_function
+
+    @callback.setter
+    def callback(self, callback_function):
+        self._callback_function = callback_function
+        self._button.configure(command=lambda: self._callback_function(self._color_to_bgr[self.__eye_color.get()],
+                                                                       self._color_to_bgr[self.__mouth_color.get()],
+                                                                       self._color_to_bgr[self.__face_color.get()],
+                                                                       self._color_to_bgr[self.__frame_color.get()],
+                                                                       self.__thickness.get()))

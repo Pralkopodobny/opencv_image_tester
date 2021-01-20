@@ -55,7 +55,7 @@ and then use in your own application.
 after preprocessing)
 11. Test dlib face detector with famous 68 face landmarks shape predictor 
 (**NOTE: shape predictor is licenced for only educational usage and it is illegal to use it in commercial application.**
-On [dlib github](https://github.com/davisking/dlib-models) you can find free to use but slightly worse versions).
+On [dlib github](https://github.com/davisking/dlib-models) you can find other shape predictors which are free to use but slightly worse).
 
 12. You can calculate histogram of an image.
 

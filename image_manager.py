@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 class ImageManager:
     def __init__(self):
         #  image in BGR
-        self.__image = cv2.imread("./azunya.png")
+        self.__image = cv2.imread("Assets/azunya.png")
 
         # manipulated image by our functions
         self.__manipulated_image = self.__image.copy()

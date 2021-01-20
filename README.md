@@ -1,7 +1,7 @@
 # Opencv image tester
 ## Introduction
 This repository contains an application created by me (Marceli Sokólski) called Image Tester. The main goal of the
-application is to provide user functionality to see **in real time** how images changes while user applies different 
+application is to provide to user a functionality to see **in real time** how images changes while user applies different 
 filters using opencv imgproc module. In addition user is able to test whether opencv haar cascades or dlib face detector
 detect face on an image he provided and processed.
 ## Download

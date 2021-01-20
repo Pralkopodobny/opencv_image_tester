@@ -24,6 +24,16 @@ diagram below:
 
 ![](Assets/ClassDiagram.jpg)
 
+## Used libraries
+1.  Matplotlib - powerful library containing functions to draw charts easily.
+2.  Tkinker - one of libraries downloaded with basic version of python. It's used for creating graphical interfaces.
+3.  Opencv - powerful, low-level library written in c++ used for computer vision and deep learning. In this project there.
+is only used it's imgproc module (If you ever consider rewriting project in c++ you know what to link ).
+4.  Dlib - Library created by Davis King containing machine learning algorithms. It's so often used with opencv that author 
+added functions to convert images to opencv format. You don't have to use them in python versions of libraries, because 
+they both store images using numpy arrays.
+
+
 ## Usage
 
 ### Graphical interface
